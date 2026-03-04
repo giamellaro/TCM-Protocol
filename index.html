@@ -28,6 +28,7 @@
   />
 
   <button id="btnStartLesson" class="btn">Start lesson</button>
+  <button id="btnInstall" class="btn hidden" type="button">Install</button>
   <button id="btnExportCsv" class="btn">Export CSV</button>
   <button id="btnExportJson" class="btn">Export JSON</button>
 </div>
@@ -63,7 +64,7 @@
           </div>
           
           <div class="editor-block">
-            <h3>Relevance</h3>
+            <h3>Data Nugget Relevance</h3>
             <div id="relevanceChips" class="chips"></div>
           </div>
 
@@ -83,7 +84,7 @@
             <textarea id="notes" rows="3" placeholder="Optional… (voice-to-text works)"></textarea>
             <div class="row">
               <button id="btnSaveNotes" class="btn">Save notes</button>
-              <span class="muted" id="autosaveHint">Auto-saves codes; notes save on button.</span>
+              <span class="muted" id="autosaveHint">Auto-saves codes + notes.</span>
             </div>
           </div>
         </div>
