@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#111111" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>TCM Event Logger</title>
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="manifest" href="./manifest.webmanifest">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="title">TCM Event Logger</div>
+      <div class="subtitle" id="lessonMeta">Lesson: not started</div>
+</div>
+<div class="topbar-actions">
+  <input
+    id="lessonIdInput"
+    class="lesson-input"
+    type="text"
+    placeholder="Lesson ID (e.g., your initials-teacher initials)"
+    autocomplete="off"
+    spellcheck="false"
+  />
+
+  <button id="btnStartLesson" class="btn">Start lesson</button>
+  <button id="btnExportCsv" class="btn">Export CSV</button>
+  <button id="btnExportJson" class="btn">Export JSON</button>
+</div>
+  </header>
+
+  <main class="layout">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Active event</h2>
+        <div class="row">
+          <button id="btnNewEvent" class="btn primary">+ New Event</button>
+          <button id="btnCloseActive" class="btn">Close</button>
+          <button id="btnUndo" class="btn">Undo</button>
+        </div>
+      </div>
+
+      <div id="activeEvent" class="card empty">
+        <div class="muted">No active event. Tap <b>New Event</b>.</div>
+      </div>
+
+      <div id="editor" class="editor hidden">
+        <div class="editor-grid">
+          <div class="editor-block">
+            <h3>Domains (tap to add)</h3>
+            <div id="domainButtons" class="chips"></div>
+            <div id="domainPicker" class="picker hidden"></div>
+            <div class="help muted">Add multiple domains to the same event if needed.</div>
+          </div>
+
+          <div class="editor-block" id="originBlock">
+            <h3>Origin (Science Practices only)</h3>
+            <div id="originChips" class="chips"></div>
+          </div>
+          
+          <div class="editor-block">
+            <h3>Relevance</h3>
+            <div id="relevanceChips" class="chips"></div>
+          </div>
+
+          <div class="editor-block">
+            <h3>Instructional Move</h3>
+            <div id="moveChips" class="chips"></div>
+          </div>
+
+          <div class="editor-block">
+            <h3>Perceived Purpose</h3>
+            <div id="purposeChips" class="chips"></div>
+          </div>
+
+
+          <div class="editor-block">
+            <h3>Notes</h3>
+            <textarea id="notes" rows="3" placeholder="Optional… (voice-to-text works)"></textarea>
+            <div class="row">
+              <button id="btnSaveNotes" class="btn">Save notes</button>
+              <span class="muted" id="autosaveHint">Auto-saves codes; notes save on button.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Recent events</h2>
+        <div class="muted">Tap an event to re-open/edit.</div>
+      </div>
+      <div id="eventsList" class="list"></div>
+    </section>
+  </main>
+
+  <footer class="footer muted">
+    Offline-first. Data stored on device (IndexedDB). Install via Share → Add to Home Screen (iPad).
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

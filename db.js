@@ -1,0 +1,83 @@
+const DB_NAME = 'tcm_logger';
+const DB_VERSION = 1;
+
+function openDb() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta', { keyPath: 'key' });
+      if (!db.objectStoreNames.contains('events')) {
+        const store = db.createObjectStore('events', { keyPath: 'id' });
+        store.createIndex('by_lesson', 'lessonId', { unique: false });
+        store.createIndex('by_created', 'createdAt', { unique: false });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function tx(db, storeName, mode='readonly') {
+  return db.transaction(storeName, mode).objectStore(storeName);
+}
+
+export async function getMeta(key) {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const req = tx(db, 'meta').get(key);
+    req.onsuccess = () => resolve(req.result?.value ?? null);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function setMeta(key, value) {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const req = tx(db, 'meta', 'readwrite').put({ key, value });
+    req.onsuccess = () => resolve(true);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function upsertEvent(event) {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const req = tx(db, 'events', 'readwrite').put(event);
+    req.onsuccess = () => resolve(true);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function getEvent(id) {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const req = tx(db, 'events').get(id);
+    req.onsuccess = () => resolve(req.result ?? null);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function listEvents(lessonId) {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const store = tx(db, 'events');
+    const idx = store.index('by_lesson');
+    const req = idx.getAll(lessonId);
+    req.onsuccess = () => {
+      const arr = req.result ?? [];
+      arr.sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+      resolve(arr);
+    };
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function deleteEvent(id) {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const req = tx(db, 'events', 'readwrite').delete(id);
+    req.onsuccess = () => resolve(true);
+    req.onerror = () => reject(req.error);
+  });
+}
