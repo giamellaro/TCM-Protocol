@@ -179,6 +179,7 @@ const ORIGIN = [
 // --------------------- UI REFERENCES ---------------------
 const lessonMeta = document.getElementById('lessonMeta');
 const btnStartLesson = document.getElementById('btnStartLesson');
+const btnInstall = document.getElementById('btnInstall');
 const lessonIdInput = document.getElementById('lessonIdInput');
 const btnNewEvent = document.getElementById('btnNewEvent');
 const btnCloseActive = document.getElementById('btnCloseActive');
@@ -655,7 +656,7 @@ async function renderActive() {
     tagsWrap.appendChild(t);
   }
 
-  if (ev.relevance?.length) tagsWrap.appendChild(tag(`Relevance: ${ev.relevance.join('+')}`, true));
+  if (ev.relevance?.length) tagsWrap.appendChild(tag(`Data Nugget Relevance: ${ev.relevance.join('+')}`, true));
   if (ev.move?.length) tagsWrap.appendChild(tag(`Move: ${ev.move.join('+')}`, true));
   if (ev.purpose?.length) tagsWrap.appendChild(tag(`Purpose: ${ev.purpose.join('+')}`, true));
   if (ev.origin?.length) tagsWrap.appendChild(tag(`Origin: ${ev.origin.join('+')}`, true));
@@ -908,17 +909,79 @@ async function exportCsv() {
 }
 
 // --------------------- WIRES ---------------------
-btnStartLesson.addEventListener('click', startLesson);
-btnNewEvent.addEventListener('click', newEvent);
-btnCloseActive.addEventListener('click', closeActive);
-btnUndo.addEventListener('click', undo);
-btnExportCsv.addEventListener('click', exportCsv);
-btnExportJson.addEventListener('click', exportJson);
+// --------------------- INSTALL (PWA) ---------------------
+let deferredInstallPrompt = null;
 
-btnSaveNotes.addEventListener('click', async () => {
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  if (btnInstall) btnInstall.classList.remove('hidden');
+});
+
+if (btnInstall) {
+  btnInstall.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    btnInstall.classList.add('hidden');
+  });
+}
+if (btnStartLesson) btnStartLesson.addEventListener('click', startLesson);
+if (btnNewEvent) btnNewEvent.addEventListener('click', newEvent);
+if (btnCloseActive) btnCloseActive.addEventListener('click', closeActive);
+if (btnUndo) btnUndo.addEventListener('click', undo);
+if (btnExportCsv) btnExportCsv.addEventListener('click', exportCsv);
+if (btnExportJson) btnExportJson.addEventListener('click', exportJson);
+
+if (btnSaveNotes) {
+  btnSaveNotes.addEventListener('click', async () => {
+    await updateActive((ev) => {
+      ev.notes = notesEl.value ?? '';
+    });
+  });
+}
+
+// ✅ Auto-save notes (crash protection)
+function debounce(fn, ms = 450) {
+  let t = null;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), ms);
+  };
+}
+
+const autosaveNotes = debounce(async () => {
+  if (!activeEventId) return;
   await updateActive((ev) => {
     ev.notes = notesEl.value ?? '';
   });
+}, 450);
+
+if (notesEl) {
+  notesEl.addEventListener('input', autosaveNotes);
+
+  // Save immediately when the user leaves the box
+  notesEl.addEventListener('blur', async () => {
+    if (!activeEventId) return;
+    await updateActive((ev) => {
+      ev.notes = notesEl.value ?? '';
+    });
+  });
+}
+
+// Save immediately when app is backgrounded (tab switch, iPad multitask, etc.)
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState !== 'hidden') return;
+  if (!activeEventId) return;
+
+  try {
+    await updateActive((ev) => {
+      ev.notes = notesEl.value ?? '';
+    });
+  } catch {
+    // best-effort only
+  }
 });
 
 // --------------------- SERVICE WORKER ---------------------
