@@ -294,6 +294,9 @@ body{
 .chip.purpose{ border-color:#2fa86a; }
 .chip.purpose.on{ background:#2fa86a; border-color:#2fa86a; color:#fff; }
 
+.chip.media{ border-color:#d73a49; }
+.chip.media.on{ background:#d73a49; border-color:#d73a49; color:#fff; }
+
 .chip.origin{ border-color:#d07a2f; }
 .chip.origin.on{ background:#d07a2f; border-color:#d07a2f; color:#fff; }
 
