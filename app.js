@@ -12,7 +12,7 @@ import { getMeta, setMeta, upsertEvent, getEvent, listEvents } from './db.js';
  */
 
 /** ✅ Tweak #3: keep event open longer */
-const AUTO_CLOSE_MS = 60000; // 60s inactivity -> auto-close (change as desired)
+const AUTO_CLOSE_MS = 120000; // 120s inactivity -> auto-close
 
 const nowIso = () => new Date().toISOString();
 
