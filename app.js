@@ -580,7 +580,7 @@ async function openDomainPicker(domain) {
   closeRow.className = 'row';
 
   const closeBtn = document.createElement('button');
-  closeBtn.className = 'btn';
+  closeBtn.className = 'btn done-btn';
   closeBtn.textContent = 'Done';
   closeBtn.onclick = async () => {
     resetDomainPickerUI(); // hides picker + removes picker-open class
@@ -598,7 +598,10 @@ function renderMultiChoiceChips(container, options, currentArr, onToggle, family
 
   for (const o of options) {
     const on = set.has(o.key);
-    const c = chip(o.label, on, () => onToggle(o.key));
+    const c = chip(o.label, on, () => {
+  resetDomainPickerUI();
+  onToggle(o.key);
+});
     if (familyClass) c.classList.add(familyClass);
     container.appendChild(c);
   }
@@ -730,8 +733,6 @@ renderMultiChoiceChips(
 );
 
   renderDomainButtons();
-    domainPickerEl.classList.add('hidden');
-    domainPickerEl.classList.remove('tinted');
 }
 
 async function renderList() {
