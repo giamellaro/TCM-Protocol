@@ -375,7 +375,7 @@ async function endLesson() {
 
   await refresh(false);
 }
-}
+
 // --------------------- EVENT CRUD ---------------------
 async function nextEventNumber() {
   const counter = await getMeta('eventCounter');
