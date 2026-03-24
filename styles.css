@@ -160,7 +160,7 @@ body{
   color:#fff;
   font-weight:900;
 }
-}
+
 /* ---------------- List ---------------- */
 .list{
   padding:12px;
@@ -241,6 +241,42 @@ body{
   grid-template-columns: minmax(340px, 1.35fr) minmax(260px, 0.65fr);
   gap:12px;
   align-items:start;
+}
+
+/* Explicit layout for editor blocks */
+#moveBlock{
+  grid-column: 1;
+  grid-row: 1;
+}
+
+#purposeBlock{
+  grid-column: 2;
+  grid-row: 1;
+}
+
+#domainsBlock{
+  grid-column: 1;
+  grid-row: 2;
+}
+
+#mediaBlock{
+  grid-column: 2;
+  grid-row: 2;
+}
+
+#originBlock{
+  grid-column: 1;
+  grid-row: 3;
+}
+
+#relevanceBlock{
+  grid-column: 2;
+  grid-row: 3;
+}
+
+#notesBlock{
+  grid-column: 1;
+  grid-row: 4;
 }
 
 /* When domain picker is open, stack vertically */
