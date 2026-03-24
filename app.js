@@ -190,6 +190,7 @@ const ORIGIN = [
 // --------------------- UI REFERENCES ---------------------
 const lessonMeta = document.getElementById('lessonMeta');
 const btnStartLesson = document.getElementById('btnStartLesson');
+const btnEndLesson = document.getElementById('btnEndLesson');
 const btnInstall = document.getElementById('btnInstall');
 const lessonIdInput = document.getElementById('lessonIdInput');
 const btnNewEvent = document.getElementById('btnNewEvent');
@@ -338,6 +339,34 @@ async function startLesson() {
   await refresh();
 }
 
+async function endLesson() {
+  if (!lesson) return;
+
+  const confirmEnd = confirm('End this lesson? This will close any active event.');
+  if (!confirmEnd) return;
+
+  // Close active event if needed
+  if (activeEventId) {
+    const ev = normalizeEvent(await getEvent(activeEventId));
+    if (ev && ev.status !== 'closed') {
+      ev.status = 'closed';
+      ev.closedAt = nowIso();
+      await upsertEvent(ev);
+    }
+  }
+
+  // Clear active state
+  activeEventId = null;
+  await setMeta('activeEventId', null);
+
+  // Clear lesson (this is key)
+  lesson = null;
+  await setMeta('lesson', null);
+
+  undoStack = [];
+
+  await refresh();
+}
 // --------------------- EVENT CRUD ---------------------
 async function nextEventNumber() {
   const counter = await getMeta('eventCounter');
@@ -959,6 +988,7 @@ if (btnInstall) {
   });
 }
 if (btnStartLesson) btnStartLesson.addEventListener('click', startLesson);
+if (btnEndLesson) btnEndLesson.addEventListener('click', endLesson);
 if (btnNewEvent) btnNewEvent.addEventListener('click', newEvent);
 if (btnCloseActive) btnCloseActive.addEventListener('click', closeActive);
 if (btnUndo) btnUndo.addEventListener('click', undo);
