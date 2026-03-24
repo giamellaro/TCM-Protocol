@@ -146,11 +146,13 @@ body{
   font-size:13px;
   font-weight:800;
 }
-.btn.btn-mini{
-  padding:8px 10px;
-  border-radius:10px;
-  font-size:13px;
-  font-weight:800;
+
+.btn.done-btn{
+  background:#39d353;
+  border-color:#39d353;
+  color:#000;
+  font-weight:900;
+}
 }
 /* ---------------- List ---------------- */
 .list{
