@@ -283,7 +283,17 @@ body{
 .editor-grid.picker-open{
   grid-template-columns: 1fr;
 }
-
+/* When picker is open, ignore fixed grid placement */
+.editor-grid.picker-open #moveBlock,
+.editor-grid.picker-open #purposeBlock,
+.editor-grid.picker-open #domainsBlock,
+.editor-grid.picker-open #mediaBlock,
+.editor-grid.picker-open #originBlock,
+.editor-grid.picker-open #relevanceBlock,
+.editor-grid.picker-open #notesBlock{
+  grid-column: auto !important;
+  grid-row: auto !important;
+}
 /* ✅ When domain picker is open, stack blocks vertically (no dead space) */
 
 .editor-block{
