@@ -134,9 +134,11 @@ body{
   cursor:pointer;
 }
 .btn:active{ transform: translateY(1px); }
+
 .btn.primary{
   background:var(--accent);
   border-color:var(--accent);
+}
 
 .btn.btn-mini{
   padding:8px 10px;
@@ -144,8 +146,12 @@ body{
   font-size:13px;
   font-weight:800;
 }
+.btn.btn-mini{
+  padding:8px 10px;
+  border-radius:10px;
+  font-size:13px;
+  font-weight:800;
 }
-
 /* ---------------- List ---------------- */
 .list{
   padding:12px;
