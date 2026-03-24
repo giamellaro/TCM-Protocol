@@ -345,6 +345,11 @@ async function endLesson() {
   const confirmEnd = confirm('End this lesson? This will close any active event.');
   if (!confirmEnd) return;
 
+  const doExport = confirm('Would you like to export CSV before ending the lesson?');
+  if (doExport) {
+    await exportCsv();
+  }
+
   // Close active event if needed
   if (activeEventId) {
     const ev = normalizeEvent(await getEvent(activeEventId));
@@ -359,13 +364,17 @@ async function endLesson() {
   activeEventId = null;
   await setMeta('activeEventId', null);
 
-  // Clear lesson (this is key)
+  // Clear lesson
   lesson = null;
   await setMeta('lesson', null);
 
   undoStack = [];
 
-  await refresh();
+  // Clear lesson ID field in the UI
+  if (lessonIdInput) lessonIdInput.value = '';
+
+  await refresh(false);
+}
 }
 // --------------------- EVENT CRUD ---------------------
 async function nextEventNumber() {
