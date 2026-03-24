@@ -153,6 +153,13 @@ body{
   color:#000;
   font-weight:900;
 }
+
+.btn.end-btn{
+  background:#b42318;
+  border-color:#b42318;
+  color:#fff;
+  font-weight:900;
+}
 }
 /* ---------------- List ---------------- */
 .list{
