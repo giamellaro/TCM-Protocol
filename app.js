@@ -160,13 +160,15 @@ const MOVES = [
   { key: 'E', label: 'Explanation' },
   { key: 'S', label: 'Story' },
   { key: 'A', label: 'Analogy' },
-  { key: 'T', label: 'Transfer' }
+  { key: 'V', label: 'Visualization' },
+  { key: 'RP', label: 'Role Play' }
 ];
 
 const PURPOSE = [
   { key: 'H', label: 'Humanizing' },
   { key: 'R', label: 'Relevance' },
   { key: 'E', label: 'Elaboration' },
+  { key: 'T', label: 'Transfer' },
   { key: 'U', label: 'Unsure' }
 ];
 
