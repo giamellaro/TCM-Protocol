@@ -172,6 +172,15 @@ const PURPOSE = [
   { key: 'U', label: 'Unsure' }
 ];
 
+const MEDIA = [
+  { key: 'P', label: 'Picture' },
+  { key: 'V', label: 'Video' },
+  { key: 'A', label: 'Audio' },
+  { key: 'CT', label: 'Chart/Table' },
+  { key: 'DM', label: 'Digital Model' },
+  { key: 'PM', label: 'Physical Model' }
+];
+
 const ORIGIN = [
   { key: 'S', label: "Scientists’" },
   { key: 'T', label: "Teacher’s" },
@@ -199,6 +208,7 @@ const domainPickerEl = document.getElementById('domainPicker');
 const relevanceChipsEl = document.getElementById('relevanceChips');
 const moveChipsEl = document.getElementById('moveChips');
 const purposeChipsEl = document.getElementById('purposeChips');
+const mediaChipsEl = document.getElementById('mediaChips');
 const originBlockEl = document.getElementById('originBlock');
 const originChipsEl = document.getElementById('originChips');
 
@@ -265,7 +275,8 @@ function normalizeEvent(ev) {
   ev.move = toArr(ev.move);
   ev.purpose = toArr(ev.purpose);
   ev.origin = toArr(ev.origin);
-
+  ev.media = toArr(ev.media);
+  
   // domains: ensure array
   if (!Array.isArray(ev.domains)) ev.domains = [];
 
@@ -664,6 +675,7 @@ async function renderActive() {
   if (ev.relevance?.length) tagsWrap.appendChild(tag(`Data Nugget Relevance: ${ev.relevance.join('+')}`, true));
   if (ev.move?.length) tagsWrap.appendChild(tag(`Move: ${ev.move.join('+')}`, true));
   if (ev.purpose?.length) tagsWrap.appendChild(tag(`Purpose: ${ev.purpose.join('+')}`, true));
+  if (ev.media?.length) tagsWrap.appendChild(tag(`Media: ${ev.media.join('+')}`, true));
   if (ev.origin?.length) tagsWrap.appendChild(tag(`Origin: ${ev.origin.join('+')}`, true));
   if (status === 'closed') tagsWrap.appendChild(tag('CLOSED'));
 
@@ -716,6 +728,20 @@ renderMultiChoiceChips(
         : [...e.purpose, k];
     }),
   'purpose'
+);
+
+renderMultiChoiceChips(
+  mediaChipsEl,
+  MEDIA,
+  ev.media,
+  (k) =>
+    updateActive((e) => {
+      e.media = e.media ?? [];
+      e.media = e.media.includes(k)
+        ? e.media.filter((x) => x !== k)
+        : [...e.media, k];
+    }),
+  'media'
 );
 
   renderMultiChoiceChips(
@@ -871,6 +897,7 @@ async function exportCsv() {
   'relevance',
   'move',
   'purpose',
+  'media',
   'origin',
   'notes'
 ];
@@ -900,6 +927,7 @@ async function exportCsv() {
         (ev.relevance ?? []).join('+'),
         (ev.move ?? []).join('+'),
         (ev.purpose ?? []).join('+'),
+        (ev.media ?? []).join('+'),
         (ev.origin ?? []).join('+'),
         ev.notes ?? ''
       ]
