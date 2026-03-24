@@ -24,7 +24,7 @@ const DOMAINS = [
     label: 'People',
     color: '#2a5bd7',
     groups: [
-      { label: 'Scientist', items: ['A specific person', 'Generalized scientist'] },
+      { label: 'Scientist', items: ['A specific scientist', 'Generalized scientist'] },
       { label: 'Self', items: ["Teacher’s own experience"] },
       {
         label: 'Student(s)',
