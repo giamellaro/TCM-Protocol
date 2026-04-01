@@ -1110,68 +1110,59 @@ async function exportJson() {
 
 async function exportCsv() {
   if (!lesson) return;
-  const safeLessonId = (lesson.id ?? 'lesson')
-  .toString()
-  .trim()
-  .replace(/[^a-z0-9_-]/gi, '_')
-  .slice(0, 60);
-  const events = (await listEvents(lesson.id)).map(normalizeEvent);
 
- const header = [
-  'userLessonId',
-  'lessonId',
-  'eventId',
-  'eventN',
-  'status',
-  'createdAt',
-  'createdRelSec',
-  'lastEditAt',
-  'lastEditRelSec',
-  'closedAt',
-  'domains',
-  'relevance',
-  'move',
-  'purpose',
-  'media',
-  'origin',
-  'notes'
-];
+  const userLessonId =
+    (lesson.userLessonId ?? '').trim() ||
+    (lessonIdInput?.value ?? '').trim() ||
+    lesson.id;
+
+  const safeLessonId = String(userLessonId)
+    .replace(/[^\w-]+/g, '_')
+    .slice(0, 60);
+
+  const observations = await listObservationsByLesson(lesson.id);
+
+  const header = [
+    'userLessonId',
+    'lessonId',
+    'observationId',
+    'ts',
+    'relSec',
+    'family',
+    'group',
+    'code',
+    'label',
+    'text'
+  ];
 
   const rows = [header.join(',')];
 
-  for (const ev of events.slice().sort((a, b) => a.n - b.n)) {
-    const domains = (ev.domains ?? [])
-      .map((d) => `${d.domainLabel}::${d.subLabel}`)
-      .join(' | ');
+  const sorted = observations.slice().sort((a, b) => {
+    const ta = new Date(a.ts).getTime();
+    const tb = new Date(b.ts).getTime();
+    return ta - tb;
+  });
 
-   const userLessonId = (lessonIdInput?.value ?? '').trim() || lesson.id;
-
-   rows.push(
-  [
-    userLessonId,
-    ev.lessonId,
-    ev.id,
-    ev.n,
-        ev.status,
-        ev.createdAt,
-        ev.createdRelSec,
-        ev.lastEditAt,
-        ev.lastEditRelSec,
-        ev.closedAt ?? '',
-        domains,
-        (ev.relevance ?? []).join('+'),
-        (ev.move ?? []).join('+'),
-        (ev.purpose ?? []).join('+'),
-        (ev.media ?? []).join('+'),
-        (ev.origin ?? []).join('+'),
-        ev.notes ?? ''
+  for (const obs of sorted) {
+    rows.push(
+      [
+        userLessonId,
+        obs.lessonId ?? '',
+        obs.id ?? '',
+        obs.ts ?? '',
+        obs.relSec ?? '',
+        obs.family ?? '',
+        obs.group ?? '',
+        obs.code ?? '',
+        obs.label ?? '',
+        obs.text ?? ''
       ]
         .map(toCsvValue)
         .join(',')
     );
   }
 
-  downloadText(`tcm_lesson_${safeLessonId}.csv`, rows.join('\n'), 'text/csv');
+  downloadText(`tcm_observations_${safeLessonId}.csv`, rows.join('\n'), 'text/csv');
 }
 
 // --------------------- WIRES ---------------------
