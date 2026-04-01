@@ -1,5 +1,5 @@
 // app.js
-import { getMeta, setMeta, addObservation as addObservationDB } from './db.js';
+import { getMeta, setMeta, addObservation as addObservationDB, listObservationsByLesson } from './db.js';
 
 /**
  * TCM Event Logger (offline-first PWA)
@@ -34,6 +34,21 @@ async function addObservation({ family, group, code, label, text }) {
   };
 
   await addObservationDB(obs);
+}
+
+async function getPeopleCounts() {
+  if (!lesson) return {};
+
+  const observations = await listObservationsByLesson(lesson.id);
+  const counts = {};
+
+  for (const obs of observations) {
+    if (obs.family === 'domain' && obs.group === 'People') {
+      counts[obs.code] = (counts[obs.code] || 0) + 1;
+    }
+  }
+
+  return counts;
 }
 
 // --------------------- CODEBOOK STRUCTURE ---------------------
@@ -676,7 +691,7 @@ function renderMultiChoiceChips(container, options, currentArr, onToggle, family
   }
 }
 
-function renderPeopleDomain() {
+async function renderPeopleDomain() {
   const container = document.getElementById('domain_people');
   if (!container) return;
 
@@ -684,6 +699,8 @@ function renderPeopleDomain() {
 
   const domain = DOMAINS.find((d) => d.key === 'people');
   if (!domain) return;
+
+  const counts = await getPeopleCounts();
 
   for (const group of domain.groups) {
     const sectionTitle = document.createElement('div');
@@ -696,10 +713,11 @@ function renderPeopleDomain() {
 
     for (const item of group.items) {
       const label = `${group.label} > ${item}`;
+      const count = counts[label] || 0;
 
       const btn = document.createElement('button');
       btn.className = 'chip';
-      btn.textContent = item;
+      btn.textContent = `${item} (${count})`;
 
       btn.addEventListener('click', async () => {
         await addObservation({
@@ -708,6 +726,13 @@ function renderPeopleDomain() {
           code: label,
           label
         });
+
+        // immediate rerender so count updates
+        renderPeopleDomain();
+
+        // quick tap feedback
+        btn.classList.add('on');
+        setTimeout(() => btn.classList.remove('on'), 180);
       });
 
       chipsWrap.appendChild(btn);
@@ -1148,7 +1173,7 @@ async function refresh(reloadActiveId = true) {
   }
 
   // V2: render only the new domain-based UI
-  renderPeopleDomain();
+  await renderPeopleDomain();
 }
 
 // boot
