@@ -51,6 +51,21 @@ async function getDomainCounts(domainLabel) {
   return counts;
 }
 
+async function getFamilyCounts(family) {
+  if (!lesson) return {};
+
+  const observations = await listObservationsByLesson(lesson.id);
+  const counts = {};
+
+  for (const obs of observations) {
+    if (obs.family === family) {
+      counts[obs.code] = (counts[obs.code] || 0) + 1;
+    }
+  }
+
+  return counts;
+}
+
 // --------------------- CODEBOOK STRUCTURE ---------------------
 // Add/adjust colors as you like (hex).
 const DOMAINS = [
@@ -747,6 +762,79 @@ async function renderAllDomains() {
   await renderDomain('other_academic', 'domain_other_academic');
 }
 
+async function renderFamilyChips({ containerId, family, options, familyClass, groupLabel }) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  const counts = await getFamilyCounts(family);
+
+  for (const opt of options) {
+    const count = counts[opt.key] || 0;
+
+    const btn = document.createElement('button');
+    btn.className = 'chip';
+    if (familyClass) btn.classList.add(familyClass);
+    btn.textContent = `${opt.label} (${count})`;
+
+    btn.addEventListener('click', async () => {
+      await addObservation({
+        family,
+        group: groupLabel,
+        code: opt.key,
+        label: opt.label
+      });
+
+      await renderAllRightColumn();
+    });
+
+    container.appendChild(btn);
+  }
+}
+
+async function renderAllRightColumn() {
+  await renderFamilyChips({
+    containerId: 'relevanceChips',
+    family: 'relevance',
+    options: RELEVANCE,
+    familyClass: 'relevance',
+    groupLabel: 'Data Nugget Relevance'
+  });
+
+  await renderFamilyChips({
+    containerId: 'moveChips',
+    family: 'move',
+    options: MOVES,
+    familyClass: 'move',
+    groupLabel: 'Instructional Move'
+  });
+
+  await renderFamilyChips({
+    containerId: 'purposeChips',
+    family: 'purpose',
+    options: PURPOSE,
+    familyClass: 'purpose',
+    groupLabel: 'Perceived Purpose'
+  });
+
+  await renderFamilyChips({
+    containerId: 'mediaChips',
+    family: 'media',
+    options: MEDIA,
+    familyClass: 'media',
+    groupLabel: 'Media'
+  });
+
+  await renderFamilyChips({
+    containerId: 'originChips',
+    family: 'origin',
+    options: ORIGIN,
+    familyClass: 'origin',
+    groupLabel: 'Origin'
+  });
+}
+
 async function renderActive() {
   if (!activeEventId) {
     activeEventEl.className = 'card empty';
@@ -1177,8 +1265,8 @@ async function refresh(reloadActiveId = true) {
     activeEventId = await getMeta('activeEventId');
   }
 
-  // V2: render only the new domain-based UI
   await renderAllDomains();
+  await renderAllRightColumn();
 }
 
 // boot
