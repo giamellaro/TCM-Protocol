@@ -36,6 +36,24 @@ async function addObservation({ family, group, code, label, text }) {
   await addObservationDB(obs);
 }
 
+async function addNote() {
+  if (!lesson) return;
+  if (!noteInputEl) return;
+
+  const text = noteInputEl.value.trim();
+  if (!text) return;
+
+  await addObservation({
+    family: 'note',
+    group: 'Notes',
+    code: 'note',
+    label: 'Note',
+    text
+  });
+
+  noteInputEl.value = '';
+}
+
 async function getDomainCounts(domainLabel) {
   if (!lesson) return {};
 
@@ -263,8 +281,8 @@ const mediaChipsEl = document.getElementById('mediaChips');
 const originBlockEl = document.getElementById('originBlock');
 const originChipsEl = document.getElementById('originChips');
 
-const notesEl = document.getElementById('notes');
-const btnSaveNotes = document.getElementById('btnSaveNotes');
+const noteInputEl = document.getElementById('noteInput');
+const btnAddNote = document.getElementById('btnAddNote');
 
 // --------------------- STATE ---------------------
 let lesson = null; // { id, startedAt }
@@ -1182,56 +1200,8 @@ if (btnCloseActive) btnCloseActive.addEventListener('click', closeActive);
 if (btnUndo) btnUndo.addEventListener('click', undo);
 if (btnExportCsv) btnExportCsv.addEventListener('click', exportCsv);
 if (btnExportJson) btnExportJson.addEventListener('click', exportJson);
+if (btnAddNote) btnAddNote.addEventListener('click', addNote);
 
-if (btnSaveNotes) {
-  btnSaveNotes.addEventListener('click', async () => {
-    await updateActive((ev) => {
-      ev.notes = notesEl.value ?? '';
-    });
-  });
-}
-
-// ✅ Auto-save notes (crash protection)
-function debounce(fn, ms = 450) {
-  let t = null;
-  return (...args) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn(...args), ms);
-  };
-}
-
-const autosaveNotes = debounce(async () => {
-  if (!activeEventId) return;
-  await updateActive((ev) => {
-    ev.notes = notesEl.value ?? '';
-  });
-}, 450);
-
-if (notesEl) {
-  notesEl.addEventListener('input', autosaveNotes);
-
-  // Save immediately when the user leaves the box
-  notesEl.addEventListener('blur', async () => {
-    if (!activeEventId) return;
-    await updateActive((ev) => {
-      ev.notes = notesEl.value ?? '';
-    });
-  });
-}
-
-// Save immediately when app is backgrounded (tab switch, iPad multitask, etc.)
-document.addEventListener('visibilitychange', async () => {
-  if (document.visibilityState !== 'hidden') return;
-  if (!activeEventId) return;
-
-  try {
-    await updateActive((ev) => {
-      ev.notes = notesEl.value ?? '';
-    });
-  } catch {
-    // best-effort only
-  }
-});
 
 // --------------------- SERVICE WORKER ---------------------
 async function registerSw() {
