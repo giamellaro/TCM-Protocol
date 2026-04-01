@@ -1,18 +1,29 @@
 const DB_NAME = 'tcm_logger';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 function openDb() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = () => {
-      const db = req.result;
-      if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta', { keyPath: 'key' });
-      if (!db.objectStoreNames.contains('events')) {
-        const store = db.createObjectStore('events', { keyPath: 'id' });
-        store.createIndex('by_lesson', 'lessonId', { unique: false });
-        store.createIndex('by_created', 'createdAt', { unique: false });
-      }
-    };
+  const db = req.result;
+
+  if (!db.objectStoreNames.contains('meta')) {
+    db.createObjectStore('meta', { keyPath: 'key' });
+  }
+
+  if (!db.objectStoreNames.contains('events')) {
+    const store = db.createObjectStore('events', { keyPath: 'id' });
+    store.createIndex('by_lesson', 'lessonId', { unique: false });
+    store.createIndex('by_created', 'createdAt', { unique: false });
+  }
+
+  // ✅ NEW: observations store
+  if (!db.objectStoreNames.contains('observations')) {
+    const store = db.createObjectStore('observations', { keyPath: 'id' });
+    store.createIndex('by_lesson', 'lessonId', { unique: false });
+    store.createIndex('by_time', 'ts', { unique: false });
+  }
+};
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
   });
@@ -80,4 +91,11 @@ export async function deleteEvent(id) {
     req.onsuccess = () => resolve(true);
     req.onerror = () => reject(req.error);
   });
+}
+
+export async function addObservation(obs) {
+  const db = await openDB();
+  const tx = db.transaction('observations', 'readwrite');
+  await tx.store.add(obs);
+  await tx.done;
 }
