@@ -36,14 +36,14 @@ async function addObservation({ family, group, code, label, text }) {
   await addObservationDB(obs);
 }
 
-async function getPeopleCounts() {
+async function getDomainCounts(domainLabel) {
   if (!lesson) return {};
 
   const observations = await listObservationsByLesson(lesson.id);
   const counts = {};
 
   for (const obs of observations) {
-    if (obs.family === 'domain' && obs.group === 'People') {
+    if (obs.family === 'domain' && obs.group === domainLabel) {
       counts[obs.code] = (counts[obs.code] || 0) + 1;
     }
   }
@@ -691,16 +691,16 @@ function renderMultiChoiceChips(container, options, currentArr, onToggle, family
   }
 }
 
-async function renderPeopleDomain() {
-  const container = document.getElementById('domain_people');
+async function renderDomain(domainKey, containerId) {
+  const container = document.getElementById(containerId);
   if (!container) return;
 
   container.innerHTML = '';
 
-  const domain = DOMAINS.find((d) => d.key === 'people');
+  const domain = DOMAINS.find((d) => d.key === domainKey);
   if (!domain) return;
 
-  const counts = await getPeopleCounts();
+  const counts = await getDomainCounts(domain.label);
 
   for (const group of domain.groups) {
     const sectionTitle = document.createElement('div');
@@ -727,12 +727,7 @@ async function renderPeopleDomain() {
           label
         });
 
-        // immediate rerender so count updates
-        await renderPeopleDomain();
-
-        // quick tap feedback
-        btn.classList.add('on');
-        setTimeout(() => btn.classList.remove('on'), 180);
+        await renderAllDomains();
       });
 
       chipsWrap.appendChild(btn);
@@ -740,6 +735,16 @@ async function renderPeopleDomain() {
 
     container.appendChild(chipsWrap);
   }
+}
+
+async function renderAllDomains() {
+  await renderDomain('people', 'domain_people');
+  await renderDomain('culture', 'domain_culture');
+  await renderDomain('science_practices', 'domain_science_practices');
+  await renderDomain('data', 'domain_data');
+  await renderDomain('place_time', 'domain_place_time');
+  await renderDomain('society', 'domain_society');
+  await renderDomain('other_academic', 'domain_other_academic');
 }
 
 async function renderActive() {
@@ -1173,7 +1178,7 @@ async function refresh(reloadActiveId = true) {
   }
 
   // V2: render only the new domain-based UI
-  await renderPeopleDomain();
+  await renderAllDomains();
 }
 
 // boot
