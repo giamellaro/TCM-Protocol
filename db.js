@@ -94,10 +94,15 @@ export async function deleteEvent(id) {
 }
 
 export async function addObservation(obs) {
-  const db = await openDB();
-  const tx = db.transaction('observations', 'readwrite');
-  await tx.store.add(obs);
-  await tx.done;
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('observations', 'readwrite');
+    const store = tx.objectStore('observations');
+    const req = store.add(obs);
+
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
 }
 
 export async function listObservationsByLesson(lessonId) {
