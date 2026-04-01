@@ -1142,16 +1142,17 @@ async function registerSw() {
 // --------------------- REFRESH ---------------------
 async function refresh(reloadActiveId = true) {
   await loadLesson();
+
   if (reloadActiveId) {
     activeEventId = await getMeta('activeEventId');
   }
-  await renderActive();
-  await renderList();
+
+  // V2: render only the new domain-based UI
+  renderPeopleDomain();
 }
 
 // boot
 (async () => {
   await registerSw();
   await refresh();
-  renderPeopleDomain();
 })();
