@@ -99,3 +99,16 @@ export async function addObservation(obs) {
   await tx.store.add(obs);
   await tx.done;
 }
+
+export async function listObservationsByLesson(lessonId) {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('observations', 'readonly');
+    const store = tx.objectStore('observations');
+    const index = store.index('by_lesson');
+    const req = index.getAll(lessonId);
+
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
