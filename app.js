@@ -1,5 +1,5 @@
 // app.js
-import { getMeta, setMeta, upsertEvent, getEvent, listEvents } from './db.js';
+import { getMeta, setMeta, addObservation as addObservationDB } from './db.js';
 
 /**
  * TCM Event Logger (offline-first PWA)
@@ -15,6 +15,26 @@ import { getMeta, setMeta, upsertEvent, getEvent, listEvents } from './db.js';
 const AUTO_CLOSE_MS = 120000; // 120s inactivity -> auto-close
 
 const nowIso = () => new Date().toISOString();
+
+async function addObservation({ family, group, code, label, text }) {
+  if (!lesson) return;
+
+  const ts = nowIso();
+
+  const obs = {
+    id: uid(),
+    lessonId: lesson.id,
+    ts,
+    relSec: lessonRelativeSeconds(ts),
+    family,
+    group,
+    code,
+    label,
+    text
+  };
+
+  await addObservationDB(obs);
+}
 
 // --------------------- CODEBOOK STRUCTURE ---------------------
 // Add/adjust colors as you like (hex).
@@ -656,6 +676,47 @@ function renderMultiChoiceChips(container, options, currentArr, onToggle, family
   }
 }
 
+function renderPeopleDomain() {
+  const container = document.getElementById('domain_people');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  const domain = DOMAINS.find((d) => d.key === 'people');
+  if (!domain) return;
+
+  for (const group of domain.groups) {
+    const sectionTitle = document.createElement('div');
+    sectionTitle.className = 'gtitle';
+    sectionTitle.textContent = group.label;
+    container.appendChild(sectionTitle);
+
+    const chipsWrap = document.createElement('div');
+    chipsWrap.className = 'chips';
+
+    for (const item of group.items) {
+      const label = `${group.label} > ${item}`;
+
+      const btn = document.createElement('button');
+      btn.className = 'chip';
+      btn.textContent = item;
+
+      btn.addEventListener('click', async () => {
+        await addObservation({
+          family: 'domain',
+          group: domain.label,
+          code: label,
+          label
+        });
+      });
+
+      chipsWrap.appendChild(btn);
+    }
+
+    container.appendChild(chipsWrap);
+  }
+}
+
 async function renderActive() {
   if (!activeEventId) {
     activeEventEl.className = 'card empty';
@@ -1092,4 +1153,5 @@ async function refresh(reloadActiveId = true) {
 (async () => {
   await registerSw();
   await refresh();
+  renderPeopleDomain();
 })();
