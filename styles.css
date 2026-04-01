@@ -81,9 +81,7 @@ body{
 
 /* ---------------- Layout / panels ---------------- */
 .layout{
-  display:grid;
-  grid-template-columns:1.6fr 0.7fr;
-  gap:12px;
+  display:block;
   padding:12px;
 }
 
