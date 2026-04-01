@@ -728,7 +728,7 @@ async function renderPeopleDomain() {
         });
 
         // immediate rerender so count updates
-        renderPeopleDomain();
+        await renderPeopleDomain();
 
         // quick tap feedback
         btn.classList.add('on');
