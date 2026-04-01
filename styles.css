@@ -428,3 +428,49 @@ textarea{
 
 .hidden{ display:none; }
 .footer{ padding:10px 16px; border-top:1px solid var(--line); }
+
+/* ---------------- Version 2 Layout ---------------- */
+
+.v2-layout{
+  display:grid;
+  grid-template-columns: 2fr 1fr;
+  gap:12px;
+}
+
+.v2-left{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  overflow:auto;
+}
+
+.v2-right{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.domain-block{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:10px;
+}
+
+.domain-block h3{
+  margin:0 0 8px;
+  font-size:14px;
+  font-weight:900;
+}
+
+.sub-block{
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px dashed var(--line);
+}
+
+.sub-block h4{
+  margin:0 0 6px;
+  font-size:12px;
+  color:var(--muted);
+}
