@@ -1,18 +1,6 @@
 // app.js
 import { getMeta, setMeta, addObservation as addObservationDB, listObservationsByLesson } from './db.js';
 
-/**
- * TCM Event Logger (offline-first PWA)
- * - Active event pinned; editable as codes “evolve”
- * - Multi-select for relevance/move/purpose/origin (no mutual exclusivity)
- * - Hierarchical domain picker (Domain > Group > Item)
- * - Domain-colored tags (base color; sub-tags lighter via CSS using --dc)
- * - Auto-close after inactivity (configurable)
- * - CSV/JSON export
- */
-
-/** ✅ Tweak #3: keep event open longer */
-const AUTO_CLOSE_MS = 120000; // 120s inactivity -> auto-close
 
 const nowIso = () => new Date().toISOString();
 
@@ -264,18 +252,12 @@ const lessonIdInput = document.getElementById('lessonIdInput');
 const btnExportCsv = document.getElementById('btnExportCsv');
 const btnExportJson = document.getElementById('btnExportJson');
 
-const activeEventEl = document.getElementById('activeEvent');
 const editorEl = document.getElementById('editor');
-const eventsListEl = document.getElementById('eventsList');
-
-const domainButtonsEl = document.getElementById('domainButtons');
-const domainPickerEl = document.getElementById('domainPicker');
 
 const relevanceChipsEl = document.getElementById('relevanceChips');
 const moveChipsEl = document.getElementById('moveChips');
 const purposeChipsEl = document.getElementById('purposeChips');
 const mediaChipsEl = document.getElementById('mediaChips');
-const originBlockEl = document.getElementById('originBlock');
 const originChipsEl = document.getElementById('originChips');
 
 const noteInputEl = document.getElementById('noteInput');
