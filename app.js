@@ -42,6 +42,15 @@ async function addNote() {
   noteInputEl.value = '';
 }
 
+async function openNotesPanel() {
+  await renderNotesPanel();
+  if (notesPanelEl) notesPanelEl.classList.remove('hidden');
+}
+
+function closeNotesPanel() {
+  if (notesPanelEl) notesPanelEl.classList.add('hidden');
+}
+
 async function getDomainCounts(domainLabel) {
   if (!lesson) return {};
 
@@ -251,6 +260,9 @@ const btnInstall = document.getElementById('btnInstall');
 const lessonIdInput = document.getElementById('lessonIdInput');
 const btnExportCsv = document.getElementById('btnExportCsv');
 const btnExportJson = document.getElementById('btnExportJson');
+const btnViewNotes = document.getElementById('btnViewNotes');
+const btnCloseNotesPanel = document.getElementById('btnCloseNotesPanel');
+const notesListEl = document.getElementById('notesList');
 
 const editorEl = document.getElementById('editor');
 
@@ -262,6 +274,7 @@ const originChipsEl = document.getElementById('originChips');
 
 const noteInputEl = document.getElementById('noteInput');
 const btnAddNote = document.getElementById('btnAddNote');
+const notesPanelEl = document.getElementById('notesPanel');
 
 // --------------------- STATE ---------------------
 let lesson = null; // { id, userLessonId, startedAt }
@@ -479,6 +492,44 @@ async function renderAllRightColumn() {
   });
 }
 
+async function renderNotesPanel() {
+  if (!notesListEl) return;
+
+  notesListEl.innerHTML = '';
+
+  if (!lesson) {
+    notesListEl.innerHTML = `<div class="muted">No active lesson.</div>`;
+    return;
+  }
+
+  const observations = await listObservationsByLesson(lesson.id);
+  const notes = observations
+    .filter((obs) => obs.family === 'note')
+    .sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
+
+  if (notes.length === 0) {
+    notesListEl.innerHTML = `<div class="muted">No notes submitted yet.</div>`;
+    return;
+  }
+
+  for (const note of notes) {
+    const item = document.createElement('div');
+    item.className = 'note-item';
+
+    const time = document.createElement('div');
+    time.className = 'note-time';
+    time.textContent = `t+${note.relSec ?? ''}s • ${new Date(note.ts).toLocaleTimeString()}`;
+
+    const text = document.createElement('div');
+    text.className = 'note-text';
+    text.textContent = note.text ?? '';
+
+    item.appendChild(time);
+    item.appendChild(text);
+    notesListEl.appendChild(item);
+  }
+}
+
 // --------------------- EXPORT ---------------------
 
 function toCsvValue(v) {
@@ -602,7 +653,14 @@ if (btnEndLesson) btnEndLesson.addEventListener('click', endLesson);
 if (btnExportCsv) btnExportCsv.addEventListener('click', exportCsv);
 if (btnExportJson) btnExportJson.addEventListener('click', exportJson);
 if (btnAddNote) btnAddNote.addEventListener('click', addNote);
+if (btnViewNotes) btnViewNotes.addEventListener('click', openNotesPanel);
+if (btnCloseNotesPanel) btnCloseNotesPanel.addEventListener('click', closeNotesPanel);
 
+if (notesPanelEl) {
+  notesPanelEl.addEventListener('click', (e) => {
+    if (e.target === notesPanelEl) closeNotesPanel();
+  });
+}
 
 // --------------------- SERVICE WORKER ---------------------
 async function registerSw() {
