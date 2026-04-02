@@ -27,11 +27,12 @@
     spellcheck="false"
   />
 
-  <button id="btnStartLesson" class="btn">Start lesson</button>
-  <button id="btnEndLesson" class="btn end-btn">End lesson</button>
-  <button id="btnInstall" class="btn hidden" type="button">Install</button>
-  <button id="btnExportCsv" class="btn">Export CSV</button>
-  <button id="btnExportJson" class="btn">Export JSON</button>
+<button id="btnStartLesson" class="btn">Start lesson</button>
+<button id="btnEndLesson" class="btn end-btn">End lesson</button>
+<button id="btnInstall" class="btn hidden" type="button">Install</button>
+<button id="btnViewNotes" class="btn" type="button">View Notes</button>
+<button id="btnExportCsv" class="btn">Export CSV</button>
+<button id="btnExportJson" class="btn">Export JSON</button>
 </div>
   </header>
 
@@ -129,6 +130,15 @@
       </div>
     </div>
   </section>
+<div id="notesPanel" class="notes-panel hidden">
+  <div class="notes-panel-card">
+    <div class="notes-panel-head">
+      <h2>Submitted Notes</h2>
+      <button id="btnCloseNotesPanel" class="btn done-btn" type="button">Done</button>
+    </div>
+    <div id="notesList" class="notes-list"></div>
+  </div>
+</div>
 </main>
 
   <footer class="footer muted">
