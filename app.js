@@ -1082,27 +1082,32 @@ function toCsvValue(v) {
 async function exportJson() {
   if (!lesson) return;
 
-  // The user-entered lesson id (falls back to internal id if blank)
-  const userLessonId = (lessonIdInput?.value ?? '').trim() || lesson.id;
+  const userLessonId =
+    (lesson.userLessonId ?? '').trim() ||
+    (lessonIdInput?.value ?? '').trim() ||
+    lesson.id;
 
-  // Safe filename version
   const safeLessonId = String(userLessonId)
     .replace(/[^\w-]+/g, '_')
     .slice(0, 60);
 
-  const events = (await listEvents(lesson.id)).map(normalizeEvent);
+  const observations = await listObservationsByLesson(lesson.id);
 
   const payload = {
     lesson: {
-      ...lesson,              // keeps internal UUID id
-      userLessonId            // adds readable label
+      ...lesson,
+      userLessonId
     },
     exportedAt: nowIso(),
-    events
+    observations: observations.slice().sort((a, b) => {
+      const ta = new Date(a.ts).getTime();
+      const tb = new Date(b.ts).getTime();
+      return ta - tb;
+    })
   };
 
   downloadText(
-    `tcm_lesson_${safeLessonId}.json`,
+    `tcm_observations_${safeLessonId}.json`,
     JSON.stringify(payload, null, 2),
     'application/json'
   );
