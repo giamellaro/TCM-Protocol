@@ -261,18 +261,10 @@ const btnStartLesson = document.getElementById('btnStartLesson');
 const btnEndLesson = document.getElementById('btnEndLesson');
 const btnInstall = document.getElementById('btnInstall');
 const lessonIdInput = document.getElementById('lessonIdInput');
-const btnNewEvent = document.getElementById('btnNewEvent');
-const btnCloseActive = document.getElementById('btnCloseActive');
-const btnUndo = document.getElementById('btnUndo');
 const btnExportCsv = document.getElementById('btnExportCsv');
 const btnExportJson = document.getElementById('btnExportJson');
 
-const activeEventEl = document.getElementById('activeEvent');
 const editorEl = document.getElementById('editor');
-const eventsListEl = document.getElementById('eventsList');
-
-const domainButtonsEl = document.getElementById('domainButtons');
-const domainPickerEl = document.getElementById('domainPicker');
 
 const relevanceChipsEl = document.getElementById('relevanceChips');
 const moveChipsEl = document.getElementById('moveChips');
@@ -285,12 +277,8 @@ const noteInputEl = document.getElementById('noteInput');
 const btnAddNote = document.getElementById('btnAddNote');
 
 // --------------------- STATE ---------------------
-let lesson = null; // { id, startedAt }
-let activeEventId = null;
-let undoStack = [];
-let autoCloseTimer = null;
-let editNoClock = false; // true only when using the list "Edit" button
-let pickerDomainKey = null; // which domain picker is currently open
+let lesson = null; // { id, userLessonId, startedAt }
+
 // --------------------- HELPERS ---------------------
 function uid() {
   return crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now();
@@ -328,10 +316,6 @@ function downloadText(filename, text, mime = 'text/plain') {
   URL.revokeObjectURL(url);
 }
 
-/** Defensive normalization so older test events don’t break after upgrades */
-function normalizeEvent(ev) {
-  if (!ev) return ev;
-
   // multi-select fields: ensure arrays
   const toArr = (v) => {
     if (Array.isArray(v)) return v;
@@ -356,26 +340,6 @@ function normalizeEvent(ev) {
   return ev;
 }
 
-function pushUndo(snapshot) {
-  undoStack.push(structuredClone(snapshot));
-  if (undoStack.length > 50) undoStack.shift();
-}
-
-// --------------------- AUTO-CLOSE ---------------------
-function setAutoClose() {
-  clearTimeout(autoCloseTimer);
-  if (!activeEventId) return;
-  autoCloseTimer = setTimeout(async () => {
-    const ev = normalizeEvent(await getEvent(activeEventId));
-    if (!ev) return;
-    if (ev.status === 'closed') return;
-
-    ev.status = 'closed';
-    ev.closedAt = nowIso();
-    await upsertEvent(ev);
-    await refresh();
-  }, AUTO_CLOSE_MS);
-}
 
 // --------------------- LESSON META ---------------------
 async function loadLesson() {
@@ -444,285 +408,8 @@ async function endLesson() {
   await refresh(false);
 }
 
-// --------------------- EVENT CRUD ---------------------
-async function nextEventNumber() {
-  const counter = await getMeta('eventCounter');
-  const next = (counter ?? 0) + 1;
-  await setMeta('eventCounter', next);
-  return next;
-}
 
-async function newEvent() {
-  resetDomainPickerUI();
-
-  editNoClock = false;
-  
-  if (!lesson) await startLesson();
-
-  // close previous active event if still open (you can re-open from list)
-  if (activeEventId) {
-    const prev = normalizeEvent(await getEvent(activeEventId));
-    if (prev && prev.status !== 'closed') {
-      prev.status = 'closed';
-      prev.closedAt = nowIso();
-      await upsertEvent(prev);
-    }
-  }
-
-  const createdAt = nowIso();
-  const ev = normalizeEvent({
-    id: uid(),
-    lessonId: lesson.id,
-    n: await nextEventNumber(),
-    createdAt,
-    createdRelSec: lessonRelativeSeconds(createdAt),
-    lastEditAt: createdAt,
-    lastEditRelSec: lessonRelativeSeconds(createdAt),
-    status: 'active',
-
-    // domains: multi-tag
-    domains: [],
-
-    /** ✅ Tweak #4: multi-select (no mutual exclusivity) */
-    relevance: [],
-    move: [],
-    purpose: [],
-    origin: [],
-
-    notes: ''
-  });
-
-  await upsertEvent(ev);
-  activeEventId = ev.id;
-  await setMeta('activeEventId', activeEventId);
-  undoStack = [];
-  setAutoClose();
-  await refresh();
-}
-
-async function closeActive() {
-  resetDomainPickerUI();
-  editNoClock = false;
-  if (!activeEventId) return;
-  const ev = normalizeEvent(await getEvent(activeEventId));
-  if (!ev) return;
-
-  if (ev.status !== 'closed') {
-    ev.status = 'closed';
-    ev.closedAt = nowIso();
-    await upsertEvent(ev);
-  }
-
-  activeEventId = null;
-  await setMeta('activeEventId', null);
-  undoStack = [];
-  await refresh();
-}
-
-async function setActive(id) {
-  editNoClock = false;
-  const ev = normalizeEvent(await getEvent(id));
-  if (!ev) return;
-
-  // re-open for editing (common in real-time coding)
-  ev.status = 'active';
-  ev.lastEditAt = nowIso();
-  ev.lastEditRelSec = lessonRelativeSeconds(ev.lastEditAt);
-  await upsertEvent(ev);
-
-  activeEventId = id;
-  await setMeta('activeEventId', activeEventId);
-  undoStack = [];
-  setAutoClose();
-  await refresh();
-}
-async function editWithoutReopen(id) {
-  const ev = normalizeEvent(await getEvent(id));
-  if (!ev) return;
-
-  editNoClock = true;   // ✅ enable silent edit mode
-
-  activeEventId = id;
-
-  // DO NOT persist as active event
-  // await setMeta('activeEventId', activeEventId);
-
-  clearTimeout(autoCloseTimer); // ✅ no auto-close ticking
-
-  await refresh(false); // ✅ do not reload activeEventId from meta
-}
-async function updateActive(mutator) {
-  if (!activeEventId) return;
-  const ev = normalizeEvent(await getEvent(activeEventId));
-  if (!ev) return;
-
-  pushUndo(ev);
-  mutator(ev);
-
-  // re-normalize after mutation
-  normalizeEvent(ev);
-
-  if (!editNoClock) {
-  ev.lastEditAt = nowIso();
-  ev.lastEditRelSec = lessonRelativeSeconds(ev.lastEditAt);
-}
-
-await upsertEvent(ev);
-
-if (!editNoClock) setAutoClose();
-
-await refresh(false);
-}
-
-async function undo() {
-  if (!activeEventId) return;
-  if (undoStack.length === 0) return;
-
-  const prev = normalizeEvent(undoStack.pop());
-  prev.lastEditAt = nowIso();
-  prev.lastEditRelSec = lessonRelativeSeconds(prev.lastEditAt);
-
-  await upsertEvent(prev);
-  await refresh(false);
-}
-function resetDomainPickerUI() {
-  pickerDomainKey = null;
-  domainPickerEl.classList.add('hidden');
-  domainPickerEl.classList.remove('tinted');
-  domainPickerEl.innerHTML = '';
-  document.querySelector('.editor-grid')?.classList.remove('picker-open');
-  originBlockEl.style.display = 'none';
-}
-function setOriginVisibility(ev) {
-  const hasSPSelection = (ev?.domains ?? []).some(
-    (d) => d.domainKey === 'science_practices'
-  );
-
-  const isSciencePickerOpen =
-    pickerDomainKey === 'science_practices' &&
-    !domainPickerEl.classList.contains('hidden');
-
-  originBlockEl.style.display =
-    hasSPSelection && isSciencePickerOpen ? 'block' : 'none';
-}
 // --------------------- RENDERING ---------------------
-function renderDomainButtons() {
-  domainButtonsEl.innerHTML = '';
-  for (const d of DOMAINS) {
-    const b = chip(d.label, false, async () => await openDomainPicker(d));
-    b.classList.add('domain-btn');
-    if (d.color) b.style.setProperty('--dc', d.color);
-    domainButtonsEl.appendChild(b);
-  }
-}
-async function openDomainPicker(domain) {
-  pickerDomainKey = domain.key;
-
-  domainPickerEl.classList.remove('hidden');
-  domainPickerEl.innerHTML = '';
-  domainPickerEl.classList.add('tinted');
-  if (domain.color) domainPickerEl.style.setProperty('--dc', domain.color);
-  document.querySelector('.editor-grid')?.classList.add('picker-open');
-
-  const title = document.createElement('div');
-  title.className = 'gtitle';
-  title.textContent = `${domain.label} – choose`;
-  domainPickerEl.appendChild(title);
-
-  // pull current selections for this domain (so chips show ON correctly)
-  const ev = activeEventId ? normalizeEvent(await getEvent(activeEventId)) : null;
-  setOriginVisibility(ev);
-
-  const selected = new Set(
-    (ev?.domains ?? [])
-      .filter((x) => x.domainKey === domain.key)
-      .map((x) => x.subLabel)
-  );
-
-  const groups = domain.groups ?? [{ label: domain.label, items: domain.subs ?? [] }];
-
-  for (const g of groups) {
-    const section = document.createElement('div');
-    section.className = 'group';
-
-    const gtitle = document.createElement('div');
-    gtitle.className = 'gtitle';
-    gtitle.textContent = g.label;
-    section.appendChild(gtitle);
-
-    const chipsWrap = document.createElement('div');
-    chipsWrap.className = 'chips';
-
-    for (const item of g.items) {
-      const subLabel = `${g.label} > ${item}`;
-
-      const c = chip(item, selected.has(subLabel), async () => {
-        await updateActive((ev2) => {
-          const idx = ev2.domains.findIndex(
-            (x) => x.domainKey === domain.key && x.subLabel === subLabel
-          );
-
-          if (idx >= 0) {
-            ev2.domains.splice(idx, 1);
-            c.classList.remove('on');
-            selected.delete(subLabel);
-          } else {
-            ev2.domains.push({
-              domainKey: domain.key,
-              domainLabel: domain.label,
-              subLabel
-            });
-            c.classList.add('on');
-            selected.add(subLabel);
-          }
-
-          const hasSP = ev2.domains.some((x) => x.domainKey === 'science_practices');
-          if (!hasSP) ev2.origin = [];
-        });
-
-        const evNow = activeEventId ? normalizeEvent(await getEvent(activeEventId)) : null;
-        setOriginVisibility(evNow);
-
-        // ✅ do NOT close picker
-      });
-
-      chipsWrap.appendChild(c);
-    }
-
-    section.appendChild(chipsWrap);
-    domainPickerEl.appendChild(section);
-  }
-
-  const closeRow = document.createElement('div');
-  closeRow.className = 'row';
-
-  const closeBtn = document.createElement('button');
-  closeBtn.className = 'btn done-btn';
-  closeBtn.textContent = 'Done';
-  closeBtn.onclick = async () => {
-    resetDomainPickerUI(); // hides picker + removes picker-open class
-    const evNow = activeEventId ? normalizeEvent(await getEvent(activeEventId)) : null;
-    setOriginVisibility(evNow); // update origin visibility after closing picker
-  };
-
-  closeRow.appendChild(closeBtn);
-  domainPickerEl.appendChild(closeRow);
-}
-
-function renderMultiChoiceChips(container, options, currentArr, onToggle, familyClass) {
-  container.innerHTML = '';
-  const set = new Set(currentArr ?? []);
-
-  for (const o of options) {
-    const on = set.has(o.key);
-    const c = chip(o.label, on, () => {
-  resetDomainPickerUI();
-  onToggle(o.key);
-});
-    if (familyClass) c.classList.add(familyClass);
-    container.appendChild(c);
-  }
-}
 
 async function renderDomain(domainKey, containerId) {
   const container = document.getElementById(containerId);
@@ -760,7 +447,7 @@ async function renderDomain(domainKey, containerId) {
           label
         });
 
-        await renderAllDomains();
+        await refresh();
       });
 
       chipsWrap.appendChild(btn);
@@ -853,226 +540,7 @@ async function renderAllRightColumn() {
   });
 }
 
-async function renderActive() {
-  if (!activeEventId) {
-    activeEventEl.className = 'card empty';
-    activeEventEl.innerHTML = `<div class="muted">No active event. Tap <b>New Event</b>.</div>`;
-    editorEl.classList.add('hidden');
-    return;
-  }
 
-  const ev = normalizeEvent(await getEvent(activeEventId));
-  if (!ev) return;
-
-  editorEl.classList.remove('hidden');
-  activeEventEl.className = 'card';
-
-  const start = new Date(ev.createdAt);
-  const rel = ev.createdRelSec ?? '';
-  const status = ev.status;
-
-  // header
-  activeEventEl.innerHTML = `
-    <div class="top">
-      <div><b>Event #${ev.n}</b> <span class="muted">(${status})</span></div>
-      <div class="muted">${start.toLocaleTimeString()} ${rel !== '' ? `• t+${rel}s` : ''}</div>
-    </div>
-    <div class="muted">Last edit: ${new Date(ev.lastEditAt).toLocaleTimeString()} ${ev.lastEditRelSec != null ? `• t+${ev.lastEditRelSec}s` : ''}</div>
-  `;
-
-  // tags
-  const tagsWrap = document.createElement('div');
-  tagsWrap.className = 'tags';
-
-  /** ✅ Tweak #2: domain-colored tags + lighter subdomain tags */
-  for (const d of ev.domains) {
-    const t = tag(`${d.domainLabel}: ${d.subLabel}`);
-    t.classList.add('domain', 'sub');
-    t.style.cursor = 'pointer';
-    t.title = 'Tap to remove';
-
-    const def = DOMAINS.find((x) => x.key === d.domainKey);
-    if (def?.color) t.style.setProperty('--dc', def.color);
-
-    t.onclick = async () => {
-      await updateActive((evv) => {
-        evv.domains = evv.domains.filter(
-          (x) => !(x.domainKey === d.domainKey && x.subLabel === d.subLabel)
-        );
-        const hasSP = evv.domains.some((x) => x.domainKey === 'science_practices');
-        if (!hasSP) evv.origin = [];
-      });
-    };
-
-    tagsWrap.appendChild(t);
-  }
-
-  if (ev.relevance?.length) tagsWrap.appendChild(tag(`Data Nugget Relevance: ${ev.relevance.join('+')}`, true));
-  if (ev.move?.length) tagsWrap.appendChild(tag(`Move: ${ev.move.join('+')}`, true));
-  if (ev.purpose?.length) tagsWrap.appendChild(tag(`Purpose: ${ev.purpose.join('+')}`, true));
-  if (ev.media?.length) tagsWrap.appendChild(tag(`Media: ${ev.media.join('+')}`, true));
-  if (ev.origin?.length) tagsWrap.appendChild(tag(`Origin: ${ev.origin.join('+')}`, true));
-  if (status === 'closed') tagsWrap.appendChild(tag('CLOSED'));
-
-  activeEventEl.appendChild(tagsWrap);
-
-  // notes editor
-  notesEl.value = ev.notes ?? '';
-
-  // origin only if any science practices domain
-  setOriginVisibility(ev);
-
-  // chips: multi-select toggles
-renderMultiChoiceChips(
-  relevanceChipsEl,
-  RELEVANCE,
-  ev.relevance,
-  (k) =>
-    updateActive((e) => {
-      e.relevance = e.relevance ?? [];
-      e.relevance = e.relevance.includes(k)
-        ? e.relevance.filter((x) => x !== k)
-        : [...e.relevance, k];
-    }),
-  'relevance'
-);
-
-renderMultiChoiceChips(
-  moveChipsEl,
-  MOVES,
-  ev.move,
-  (k) =>
-    updateActive((e) => {
-      e.move = e.move ?? [];
-      e.move = e.move.includes(k)
-        ? e.move.filter((x) => x !== k)
-        : [...e.move, k];
-    }),
-  'move'
-);
-
- renderMultiChoiceChips(
-  purposeChipsEl,
-  PURPOSE,
-  ev.purpose,
-  (k) =>
-    updateActive((e) => {
-      e.purpose = e.purpose ?? [];
-      e.purpose = e.purpose.includes(k)
-        ? e.purpose.filter((x) => x !== k)
-        : [...e.purpose, k];
-    }),
-  'purpose'
-);
-
-renderMultiChoiceChips(
-  mediaChipsEl,
-  MEDIA,
-  ev.media,
-  (k) =>
-    updateActive((e) => {
-      e.media = e.media ?? [];
-      e.media = e.media.includes(k)
-        ? e.media.filter((x) => x !== k)
-        : [...e.media, k];
-    }),
-  'media'
-);
-
-  renderMultiChoiceChips(
-  originChipsEl,
-  ORIGIN,
-  ev.origin,
-  (k) =>
-    updateActive((e) => {
-      e.origin = e.origin ?? [];
-      e.origin = e.origin.includes(k)
-        ? e.origin.filter((x) => x !== k)
-        : [...e.origin, k];
-    }),
-  'origin'
-);
-
-  renderDomainButtons();
-}
-
-async function renderList() {
-  eventsListEl.innerHTML = '';
-  if (!lesson) {
-    eventsListEl.innerHTML = `<div class="muted">Start a lesson to begin.</div>`;
-    return;
-  }
-
-  const events = (await listEvents(lesson.id)).map(normalizeEvent);
-  if (events.length === 0) {
-    eventsListEl.innerHTML = `<div class="muted">No events yet.</div>`;
-    return;
-  }
-
-  for (const ev of events.slice(0, 100)) {
-    const div = document.createElement('div');
-    div.className = 'item';
-    div.onclick = () => setActive(ev.id);
-
-    const t = new Date(ev.createdAt);
-    div.innerHTML = `
-      <div class="top">
-        <div>
-          <b>#${ev.n}</b>
-          <span class="muted">${ev.status === 'closed' ? '(closed)' : '(active)'}</span>
-        </div>
-
-        <div class="row" style="gap:8px; align-items:center;">
-          <div class="muted">
-            ${t.toLocaleTimeString()}
-            ${ev.createdRelSec != null ? `• t+${ev.createdRelSec}s` : ''}
-          </div>
-          <button type="button" class="btn btn-mini" data-edit="${ev.id}">Edit</button>
-        </div>
-      </div>
-    `;
-
-    const tags = document.createElement('div');
-    tags.className = 'tags';
-
-    // show up to 2 domain tags
-    for (const d of ev.domains.slice(0, 2)) {
-      const def = DOMAINS.find((x) => x.key === d.domainKey);
-      const ttag = tag(d.domainLabel);
-      if (def?.color) {
-        ttag.classList.add('domain', 'sub');
-        ttag.style.setProperty('--dc', def.color);
-      }
-      tags.appendChild(ttag);
-    }
-
-    if (ev.domains.length > 2) {
-      tags.appendChild(tag(`+${ev.domains.length - 2} more`));
-    }
-
-    if (ev.relevance?.length) {
-      tags.appendChild(tag(`Rel ${ev.relevance.join('+')}`, true));
-    }
-    if (ev.move?.length) {
-      tags.appendChild(tag(`Move ${ev.move.join('+')}`, true));
-    }
-    if (ev.purpose?.length) {
-      tags.appendChild(tag(`Purp ${ev.purpose.join('+')}`, true));
-    }
-
-    // Attach Edit button handler (does NOT restart clock)
-    const editBtn = div.querySelector('[data-edit]');
-    if (editBtn) {
-      editBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        editWithoutReopen(ev.id);
-      });
-    }
-
-    div.appendChild(tags);
-    eventsListEl.appendChild(div);
-  }
-}
 // --------------------- EXPORT ---------------------
 function toCsvValue(v) {
   const s = (v ?? '').toString();
@@ -1171,6 +639,12 @@ async function exportCsv() {
 }
 
 // --------------------- WIRES ---------------------
+if (btnStartLesson) btnStartLesson.addEventListener('click', startLesson);
+if (btnEndLesson) btnEndLesson.addEventListener('click', endLesson);
+if (btnExportCsv) btnExportCsv.addEventListener('click', exportCsv);
+if (btnExportJson) btnExportJson.addEventListener('click', exportJson);
+if (btnAddNote) btnAddNote.addEventListener('click', addNote);
+
 // --------------------- INSTALL (PWA) ---------------------
 let deferredInstallPrompt = null;
 
@@ -1224,13 +698,8 @@ async function registerSw() {
 }
 
 // --------------------- REFRESH ---------------------
-async function refresh(reloadActiveId = true) {
+async function refresh() {
   await loadLesson();
-
-  if (reloadActiveId) {
-    activeEventId = await getMeta('activeEventId');
-  }
-
   await renderAllDomains();
   await renderAllRightColumn();
 }
