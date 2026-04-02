@@ -133,7 +133,7 @@ const DOMAINS = [
     color: '#2fa86a',
     groups: [
       {
-        label: 'Science Practices',
+        label: '',
         items: [
           'Research questions',
           'Models (not data models)',
@@ -152,7 +152,7 @@ const DOMAINS = [
     color: '#7a4fd3',
     groups: [
       {
-        label: 'Data',
+        label: '',
         items: [
           'Data',
           'Data collection',
@@ -246,12 +246,6 @@ const MEDIA = [
   { key: 'PM', label: 'Physical Model' }
 ];
 
-const ORIGIN = [
-  { key: 'S', label: "Scientists’" },
-  { key: 'T', label: "Teacher’s" },
-  { key: 'U', label: "Students’" }
-];
-
 // --------------------- UI REFERENCES ---------------------
 const lessonMeta = document.getElementById('lessonMeta');
 const btnStartLesson = document.getElementById('btnStartLesson');
@@ -270,7 +264,6 @@ const relevanceChipsEl = document.getElementById('relevanceChips');
 const moveChipsEl = document.getElementById('moveChips');
 const purposeChipsEl = document.getElementById('purposeChips');
 const mediaChipsEl = document.getElementById('mediaChips');
-const originChipsEl = document.getElementById('originChips');
 
 const noteInputEl = document.getElementById('noteInput');
 const btnAddNote = document.getElementById('btnAddNote');
@@ -564,14 +557,6 @@ async function renderAllRightColumn() {
     options: MEDIA,
     familyClass: 'media',
     groupLabel: 'Media'
-  });
-
-  await renderFamilyChips({
-    containerId: 'originChips',
-    family: 'origin',
-    options: ORIGIN,
-    familyClass: 'origin',
-    groupLabel: 'Origin'
   });
 }
 
