@@ -287,13 +287,6 @@ function chip(label, isOn, onClick) {
   return b;
 }
 
-function tag(text, isOn = false) {
-  const span = document.createElement('span');
-  span.className = 'tag' + (isOn ? ' on' : '');
-  span.textContent = text;
-  return span;
-}
-
 function downloadText(filename, text, mime = 'text/plain') {
   const blob = new Blob([text], { type: mime });
   const url = URL.createObjectURL(blob);
@@ -312,9 +305,11 @@ async function loadLesson() {
     lessonMeta.textContent = 'Lesson: not started';
     return;
   }
+
   if (lessonIdInput) lessonIdInput.value = lesson.userLessonId || '';
-const shortId = (lesson?.id ?? '').toString().slice(0, 8);
-lessonMeta.textContent = `Lesson started ${new Date(lesson.startedAt).toLocaleString()} (id: ${shortId})`;
+
+  const shortId = (lesson?.id ?? '').toString().slice(0, 8);
+  lessonMeta.textContent = `Lesson started ${new Date(lesson.startedAt).toLocaleString()} (id: ${shortId})`;
 }
 
 async function startLesson() {
@@ -351,7 +346,6 @@ async function endLesson() {
 
   await refresh();
 }
-
 
 // --------------------- RENDERING ---------------------
 
@@ -526,6 +520,7 @@ async function exportJson() {
     'application/json'
   );
 }
+
 async function exportCsv() {
   if (!lesson) return;
 
@@ -583,7 +578,6 @@ async function exportCsv() {
   downloadText(`tcm_observations_${safeLessonId}.csv`, rows.join('\n'), 'text/csv');
 }
 
-// --------------------- WIRES ---------------------
 // --------------------- INSTALL (PWA) ---------------------
 let deferredInstallPrompt = null;
 
@@ -602,6 +596,7 @@ if (btnInstall) {
     btnInstall.classList.add('hidden');
   });
 }
+// --------------------- WIRES ---------------------
 if (btnStartLesson) btnStartLesson.addEventListener('click', startLesson);
 if (btnEndLesson) btnEndLesson.addEventListener('click', endLesson);
 if (btnExportCsv) btnExportCsv.addEventListener('click', exportCsv);
