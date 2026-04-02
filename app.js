@@ -409,12 +409,85 @@ async function renderDomain(domainKey, containerId) {
   }
 }
 
+async function renderPeopleSubgroup(groupKey, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  const domain = DOMAINS.find((d) => d.key === 'people');
+  if (!domain) return;
+
+  const counts = await getDomainCounts(domain.label);
+
+  let itemsToRender = [];
+
+  if (groupKey === 'Scientist') {
+    const group = domain.groups.find((g) => g.label === 'Scientist');
+    if (group) {
+      itemsToRender = group.items.map((item) => ({
+        groupLabel: group.label,
+        item
+      }));
+    }
+  }
+
+  if (groupKey === 'Student(s)') {
+    const group = domain.groups.find((g) => g.label === 'Student(s)');
+    if (group) {
+      itemsToRender = group.items.map((item) => ({
+        groupLabel: group.label,
+        item
+      }));
+    }
+  }
+
+  if (groupKey === 'Others') {
+    const wantedGroups = ['Self', 'People impacted by the topic', 'Other'];
+
+    for (const g of domain.groups) {
+      if (wantedGroups.includes(g.label)) {
+        for (const item of g.items) {
+          itemsToRender.push({
+            groupLabel: g.label,
+            item
+          });
+        }
+      }
+    }
+  }
+
+  for (const entry of itemsToRender) {
+    const label = `${entry.groupLabel} > ${entry.item}`;
+    const count = counts[label] || 0;
+
+    const btn = document.createElement('button');
+    btn.className = 'chip';
+    btn.textContent = `${entry.item} (${count})`;
+
+    btn.addEventListener('click', async () => {
+      await addObservation({
+        family: 'domain',
+        group: domain.label,
+        code: label,
+        label
+      });
+
+      await refresh();
+    });
+
+    container.appendChild(btn);
+  }
+}
+
 async function renderAllDomains() {
-  await renderDomain('people', 'domain_people');
-  await renderDomain('culture', 'domain_culture');
+  await renderPeopleSubgroup('Scientist', 'domain_people_scientist');
+  await renderPeopleSubgroup('Student(s)', 'domain_people_students');
+  await renderPeopleSubgroup('Other', 'domain_people_others');
   await renderDomain('science_practices', 'domain_science_practices');
   await renderDomain('data', 'domain_data');
   await renderDomain('place_time', 'domain_place_time');
+  await renderDomain('culture', 'domain_culture');
   await renderDomain('society', 'domain_society');
   await renderDomain('other_academic', 'domain_other_academic');
 }
