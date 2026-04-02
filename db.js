@@ -51,48 +51,6 @@ export async function setMeta(key, value) {
   });
 }
 
-export async function upsertEvent(event) {
-  const db = await openDb();
-  return new Promise((resolve, reject) => {
-    const req = tx(db, 'events', 'readwrite').put(event);
-    req.onsuccess = () => resolve(true);
-    req.onerror = () => reject(req.error);
-  });
-}
-
-export async function getEvent(id) {
-  const db = await openDb();
-  return new Promise((resolve, reject) => {
-    const req = tx(db, 'events').get(id);
-    req.onsuccess = () => resolve(req.result ?? null);
-    req.onerror = () => reject(req.error);
-  });
-}
-
-export async function listEvents(lessonId) {
-  const db = await openDb();
-  return new Promise((resolve, reject) => {
-    const store = tx(db, 'events');
-    const idx = store.index('by_lesson');
-    const req = idx.getAll(lessonId);
-    req.onsuccess = () => {
-      const arr = req.result ?? [];
-      arr.sort((a,b) => b.createdAt.localeCompare(a.createdAt));
-      resolve(arr);
-    };
-    req.onerror = () => reject(req.error);
-  });
-}
-
-export async function deleteEvent(id) {
-  const db = await openDb();
-  return new Promise((resolve, reject) => {
-    const req = tx(db, 'events', 'readwrite').delete(id);
-    req.onsuccess = () => resolve(true);
-    req.onerror = () => reject(req.error);
-  });
-}
-
 export async function addObservation(obs) {
   const db = await openDb();
   return new Promise((resolve, reject) => {
