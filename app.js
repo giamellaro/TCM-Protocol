@@ -222,7 +222,7 @@ const RELEVANCE = [
 ];
 
 const MOVES = [
-  { key: 'R', label: 'Reference' },
+  { key: 'R', label: 'Simple Reference' },
   { key: 'E', label: 'Explanation' },
   { key: 'S', label: 'Story' },
   { key: 'A', label: 'Analogy' },
