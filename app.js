@@ -476,10 +476,11 @@ async function renderAllDomains() {
   await renderPeopleSubgroup('Scientist', 'domain_people_scientist');
   await renderPeopleSubgroup('Student(s)', 'domain_people_students');
   await renderPeopleSubgroup('Other People', 'domain_people_others');
-  await renderDomain('science_practices', 'domain_science_practices');
+
   await renderDomain('data', 'domain_data');
   await renderDomain('place_time', 'domain_place_time');
   await renderDomain('culture', 'domain_culture');
+  await renderDomain('science_practices', 'domain_science_practices');
   await renderDomain('society', 'domain_society');
   await renderDomain('other_academic', 'domain_other_academic');
 }
