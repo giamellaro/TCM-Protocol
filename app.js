@@ -356,7 +356,6 @@ async function endLesson() {
 
 // --------------------- RENDERING ---------------------
 
-
 async function renderDomain(domainKey, containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
@@ -380,7 +379,7 @@ async function renderDomain(domainKey, containerId) {
     chipsWrap.className = 'chips';
 
     for (const item of group.items) {
-      const label = `${group.label} > ${item}`;
+      const label = group.label ? `${group.label} > ${item}` : item;
       const count = counts[label] || 0;
 
       const btn = document.createElement('button');
@@ -422,7 +421,7 @@ async function renderPeopleSubgroup(groupKey, containerId) {
     const group = domain.groups.find((g) => g.label === 'Scientist');
     if (group) {
       itemsToRender = group.items.map((item) => ({
-        groupLabel: group.label,
+        groupLabel: 'Scientist',
         item
       }));
     }
@@ -432,23 +431,21 @@ async function renderPeopleSubgroup(groupKey, containerId) {
     const group = domain.groups.find((g) => g.label === 'Student(s)');
     if (group) {
       itemsToRender = group.items.map((item) => ({
-        groupLabel: group.label,
+        groupLabel: 'Student(s)',
         item
       }));
     }
   }
 
- if (groupKey === 'Other People') {
-  itemsToRender.push({
-    groupLabel: 'Other People',
-    item: 'Teacher experience'
-  });
+  if (groupKey === 'Other People') {
+    itemsToRender = [
+      { groupLabel: 'Other People', item: 'Teacher experience' },
+      { groupLabel: 'Other People', item: 'Any other people' }
+    ];
+  }
 
-  itemsToRender.push({
-    groupLabel: 'Other People',
-    item: 'Any other people'
-  });
-}
+  const chipsWrap = document.createElement('div');
+  chipsWrap.className = 'chips';
 
   for (const entry of itemsToRender) {
     const label = `${entry.groupLabel} > ${entry.item}`;
@@ -469,8 +466,52 @@ async function renderPeopleSubgroup(groupKey, containerId) {
       await refresh();
     });
 
-    container.appendChild(btn);
+    chipsWrap.appendChild(btn);
   }
+
+  container.appendChild(chipsWrap);
+}
+
+async function renderCultureSubgroup(groupLabel, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  const domain = DOMAINS.find((d) => d.key === 'culture');
+  if (!domain) return;
+
+  const group = domain.groups.find((g) => g.label === groupLabel);
+  if (!group) return;
+
+  const counts = await getDomainCounts(domain.label);
+
+  const chipsWrap = document.createElement('div');
+  chipsWrap.className = 'chips';
+
+  for (const item of group.items) {
+    const label = `${group.label} > ${item}`;
+    const count = counts[label] || 0;
+
+    const btn = document.createElement('button');
+    btn.className = 'chip';
+    btn.textContent = `${item} (${count})`;
+
+    btn.addEventListener('click', async () => {
+      await addObservation({
+        family: 'domain',
+        group: domain.label,
+        code: label,
+        label
+      });
+
+      await refresh();
+    });
+
+    chipsWrap.appendChild(btn);
+  }
+
+  container.appendChild(chipsWrap);
 }
 
 async function renderAllDomains() {
@@ -480,7 +521,8 @@ async function renderAllDomains() {
 
   await renderDomain('data', 'domain_data');
   await renderDomain('place_time', 'domain_place_time');
-  await renderDomain('culture', 'domain_culture');
+  await renderCultureSubgroup('Language', 'domain_culture_language');
+  await renderCultureSubgroup('Culture', 'domain_culture_culture');
   await renderDomain('science_practices', 'domain_science_practices');
   await renderDomain('society', 'domain_society');
   await renderDomain('other_academic', 'domain_other_academic');
@@ -588,7 +630,6 @@ async function renderNotesPanel() {
     notesListEl.appendChild(item);
   }
 }
-
 // --------------------- EXPORT ---------------------
 
 function toCsvValue(v) {
