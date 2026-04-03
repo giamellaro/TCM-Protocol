@@ -167,28 +167,29 @@ const DOMAINS = [
       }
     ]
   },
-  {
-    key: 'place_time',
-    label: 'Physical Setting / Time',
-    color: '#2f9ea6',
-    groups: [
-      {
-        label: 'Physical setting / geography',
-        items: [
-          'Specific place',
-          'Multiple places/environments',
-          'Maps',
-          'Specific organisms',
-          'Geographical relationship',
-          'Abiotic characteristics',
-          'Other physical/environmental detail',
-          'Affective response (awe/wonder/fear/etc.)',
-          'Other sense of place'
-        ]
-      },
-      { label: 'Time', items: ['Passage of time, deep time'] }
-    ]
-  },
+ {
+  key: 'place_time',
+  label: 'Physical Setting / Time',
+  color: '#2f9ea6',
+  groups: [
+    {
+      label: '',
+      items: [
+        'Specific place',
+        'Multiple places/environments',
+        'Maps',
+        'Specific organisms',
+        'Geographical relationship',
+        'Abiotic characteristics',
+        'Other physical/environmental detail',
+        'Affective response (awe/wonder/fear/etc.)',
+        'Other sense of place'
+      ]
+    },
+    { label: '', items: ['Passage of time, deep time'] }
+  ]
+},
+  
   {
     key: 'society',
     label: 'Society / Events / Values',
@@ -367,11 +368,12 @@ async function renderDomain(domainKey, containerId) {
 
   const counts = await getDomainCounts(domain.label);
 
-  for (const group of domain.groups) {
-    const sectionTitle = document.createElement('div');
-    sectionTitle.className = 'gtitle';
-    sectionTitle.textContent = group.label;
-    container.appendChild(sectionTitle);
+  if (group.label) {
+  const sectionTitle = document.createElement('div');
+  sectionTitle.className = 'gtitle';
+  sectionTitle.textContent = group.label;
+  container.appendChild(sectionTitle);
+  }
 
     const chipsWrap = document.createElement('div');
     chipsWrap.className = 'chips';
