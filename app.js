@@ -368,12 +368,13 @@ async function renderDomain(domainKey, containerId) {
 
   const counts = await getDomainCounts(domain.label);
 
-  if (group.label) {
-  const sectionTitle = document.createElement('div');
-  sectionTitle.className = 'gtitle';
-  sectionTitle.textContent = group.label;
-  container.appendChild(sectionTitle);
-  }
+  for (const group of domain.groups) {
+    if (group.label) {
+      const sectionTitle = document.createElement('div');
+      sectionTitle.className = 'gtitle';
+      sectionTitle.textContent = group.label;
+      container.appendChild(sectionTitle);
+    }
 
     const chipsWrap = document.createElement('div');
     chipsWrap.className = 'chips';
