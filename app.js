@@ -183,10 +183,10 @@ const DOMAINS = [
         'Abiotic characteristics',
         'Other physical/environmental detail',
         'Affective response (awe/wonder/fear/etc.)',
-        'Other sense of place'
+        'Other sense of place',
+        'Passage of time, deep time'
       ]
-    },
-    { label: '', items: ['Passage of time, deep time'] }
+    }
   ]
 },
   
