@@ -384,6 +384,12 @@ async function renderDomain(domainKey, containerId) {
 
       const btn = document.createElement('button');
       btn.className = 'chip';
+
+      if (domain.key === 'science_practices') btn.classList.add('domain-science-practices');
+      if (domain.key === 'data') btn.classList.add('domain-data');
+      if (domain.key === 'place_time') btn.classList.add('domain-place-time');
+      if (domain.key === 'society') btn.classList.add('domain-society');
+      if (domain.key === 'other_academic') btn.classList.add('domain-other-academic');
       btn.textContent = `${item} (${count})`;
 
       btn.addEventListener('click', async () => {
@@ -453,6 +459,10 @@ async function renderPeopleSubgroup(groupKey, containerId) {
 
     const btn = document.createElement('button');
     btn.className = 'chip';
+
+    if (groupKey === 'Scientist') btn.classList.add('domain-scientist');
+    if (groupKey === 'Student(s)') btn.classList.add('domain-students');
+    if (groupKey === 'Other People') btn.classList.add('domain-other-people');
     btn.textContent = `${entry.item} (${count})`;
 
     btn.addEventListener('click', async () => {
@@ -495,6 +505,9 @@ async function renderCultureSubgroup(groupLabel, containerId) {
 
     const btn = document.createElement('button');
     btn.className = 'chip';
+
+    if (groupLabel === 'Language') btn.classList.add('domain-language');
+    if (groupLabel === 'Culture') btn.classList.add('domain-culture');
     btn.textContent = `${item} (${count})`;
 
     btn.addEventListener('click', async () => {
