@@ -1,5 +1,5 @@
 // sw.js (PRODUCTION: maximum offline reliability)
-const CACHE_NAME = 'tcm-pwa-v48'; // ✅ bump this on every release
+const CACHE_NAME = 'tcm-pwa-v49'; // ✅ bump this on every release
 
 const ASSETS = [
   './',
