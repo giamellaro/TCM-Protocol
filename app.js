@@ -436,19 +436,6 @@ async function renderPeopleSubgroup(groupKey, containerId) {
   }
 
  if (groupKey === 'Other People') {
-  const wantedGroups = ['Self', 'People impacted by the topic', 'Other'];
-
-  for (const g of domain.groups) {
-    if (wantedGroups.includes(g.label)) {
-      for (const item of g.items) {
-        itemsToRender.push({
-          groupLabel: g.label,
-          item
-        });
-      }
-    }
-  }
-
   itemsToRender.push({
     groupLabel: 'Other People',
     item: 'Teacher experience'
@@ -456,7 +443,7 @@ async function renderPeopleSubgroup(groupKey, containerId) {
 
   itemsToRender.push({
     groupLabel: 'Other People',
-    item: 'Other people'
+    item: 'Any other people'
   });
 }
 
