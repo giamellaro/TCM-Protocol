@@ -435,7 +435,7 @@ async function renderPeopleSubgroup(groupKey, containerId) {
     }
   }
 
- if (groupKey === 'Others') {
+ if (groupKey === 'Other People') {
   const wantedGroups = ['Self', 'People impacted by the topic', 'Other'];
 
   for (const g of domain.groups) {
@@ -486,7 +486,7 @@ async function renderPeopleSubgroup(groupKey, containerId) {
 async function renderAllDomains() {
   await renderPeopleSubgroup('Scientist', 'domain_people_scientist');
   await renderPeopleSubgroup('Student(s)', 'domain_people_students');
-  await renderPeopleSubgroup('Other', 'domain_people_others');
+  await renderPeopleSubgroup('Other People', 'domain_people_other People');
   await renderDomain('science_practices', 'domain_science_practices');
   await renderDomain('data', 'domain_data');
   await renderDomain('place_time', 'domain_place_time');
