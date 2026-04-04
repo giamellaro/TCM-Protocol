@@ -247,11 +247,6 @@ body{
   grid-row: 1;
 }
 
-#purposeBlock{
-  grid-column: 2;
-  grid-row: 1;
-}
-
 #domainsBlock{
   grid-column: 1;
   grid-row: 2;
@@ -278,7 +273,6 @@ body{
 }
 /* When picker is open, ignore fixed grid placement */
 .editor-grid.picker-open #moveBlock,
-.editor-grid.picker-open #purposeBlock,
 .editor-grid.picker-open #domainsBlock,
 .editor-grid.picker-open #mediaBlock,
 .editor-grid.picker-open #relevanceBlock,
@@ -323,7 +317,7 @@ body{
 .chip:active{ transform: translateY(1px); }
 
 /* Default ON styling (chips without a family class) */
-.chip.on:not(.relevance):not(.move):not(.purpose):not(.origin):not(.domain-btn){
+.chip.on:not(.relevance):not(.move):not(.domain-btn){
   background:var(--accent);
   border-color:var(--accent);
   color:#fff;
@@ -335,9 +329,6 @@ body{
 
 .chip.move{ border-color:#7a4fd3; }
 .chip.move.on{ background:#7a4fd3; border-color:#7a4fd3; color:#fff; }
-
-.chip.purpose{ border-color:#2fa86a; }
-.chip.purpose.on{ background:#2fa86a; border-color:#2fa86a; color:#fff; }
 
 .chip.media{ border-color:#d73a49; }
 .chip.media.on{ background:#d73a49; border-color:#d73a49; color:#fff; }
@@ -594,7 +585,7 @@ textarea{
 
 .v2-layout{
   display:grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 3fr 1fr;
   gap:12px;
 }
 
