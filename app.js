@@ -191,20 +191,25 @@ const DOMAINS = [
 },
   
   {
-    key: 'society',
-    label: 'Society / Events / Values',
-    color: '#c84b62',
-    groups: [
-      { label: 'Historical', items: ['event', 'issue'] },
-      { label: 'Current local', items: ['event', 'issue'] },
-      { label: 'Current non-local', items: ['event', 'issue'] },
-      {
-        label: 'Values or ethics',
-        items: ['scenario', 'teacher judgement', 'student judgement']
-      },
-      { label: 'Activism', items: ['Student Agency', "Others’ activism"] }
-    ]
-  },
+  key: 'society',
+  label: 'Issues & Society',
+  color: '#a21caf',
+  groups: [
+    {
+      label: '',
+      items: [
+        'Issue',
+        'Event',
+        'Current',
+        'Historical',
+        'Local',
+        'Non-local',
+        'Ethic/judgement',
+        'Activism'
+      ]
+    }
+  ]
+},
   {
     key: 'other_academic',
     label: 'Other Academic Subjects',
