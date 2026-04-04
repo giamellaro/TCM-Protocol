@@ -4,7 +4,7 @@ import { getMeta, setMeta, upsertEvent, getEvent, listEvents } from './db.js';
 /**
  * TCM Event Logger (offline-first PWA)
  * - Active event pinned; editable as codes “evolve”
- * - Multi-select for relevance/move/purpose/origin (no mutual exclusivity)
+ * - Multi-select for relevance/move (no mutual exclusivity)
  * - Hierarchical domain picker (Domain > Group > Item)
  * - Domain-colored tags (base color; sub-tags lighter via CSS using --dc)
  * - Auto-close after inactivity (configurable)
@@ -164,14 +164,6 @@ const MOVES = [
   { key: 'RP', label: 'Role Play' }
 ];
 
-const PURPOSE = [
-  { key: 'H', label: 'Humanizing' },
-  { key: 'R', label: 'Relevance' },
-  { key: 'E', label: 'Elaboration' },
-  { key: 'T', label: 'Transfer' },
-  { key: 'U', label: 'Unsure' }
-];
-
 const MEDIA = [
   { key: 'P', label: 'Picture' },
   { key: 'V', label: 'Video' },
@@ -208,7 +200,6 @@ const domainPickerEl = document.getElementById('domainPicker');
 
 const relevanceChipsEl = document.getElementById('relevanceChips');
 const moveChipsEl = document.getElementById('moveChips');
-const purposeChipsEl = document.getElementById('purposeChips');
 const mediaChipsEl = document.getElementById('mediaChips');
 const originBlockEl = document.getElementById('originBlock');
 const originChipsEl = document.getElementById('originChips');
@@ -274,7 +265,6 @@ function normalizeEvent(ev) {
 
   ev.relevance = toArr(ev.relevance);
   ev.move = toArr(ev.move);
-  ev.purpose = toArr(ev.purpose);
   ev.origin = toArr(ev.origin);
   ev.media = toArr(ev.media);
   
@@ -418,7 +408,6 @@ async function newEvent() {
     /** ✅ Tweak #4: multi-select (no mutual exclusivity) */
     relevance: [],
     move: [],
-    purpose: [],
     origin: [],
 
     notes: ''
@@ -712,7 +701,6 @@ async function renderActive() {
 
   if (ev.relevance?.length) tagsWrap.appendChild(tag(`Data Nugget Relevance: ${ev.relevance.join('+')}`, true));
   if (ev.move?.length) tagsWrap.appendChild(tag(`Move: ${ev.move.join('+')}`, true));
-  if (ev.purpose?.length) tagsWrap.appendChild(tag(`Purpose: ${ev.purpose.join('+')}`, true));
   if (ev.media?.length) tagsWrap.appendChild(tag(`Media: ${ev.media.join('+')}`, true));
   if (ev.origin?.length) tagsWrap.appendChild(tag(`Origin: ${ev.origin.join('+')}`, true));
   if (status === 'closed') tagsWrap.appendChild(tag('CLOSED'));
@@ -752,20 +740,6 @@ renderMultiChoiceChips(
         : [...e.move, k];
     }),
   'move'
-);
-
- renderMultiChoiceChips(
-  purposeChipsEl,
-  PURPOSE,
-  ev.purpose,
-  (k) =>
-    updateActive((e) => {
-      e.purpose = e.purpose ?? [];
-      e.purpose = e.purpose.includes(k)
-        ? e.purpose.filter((x) => x !== k)
-        : [...e.purpose, k];
-    }),
-  'purpose'
 );
 
 renderMultiChoiceChips(
@@ -859,9 +833,6 @@ async function renderList() {
     if (ev.move?.length) {
       tags.appendChild(tag(`Move ${ev.move.join('+')}`, true));
     }
-    if (ev.purpose?.length) {
-      tags.appendChild(tag(`Purp ${ev.purpose.join('+')}`, true));
-    }
 
     // Attach Edit button handler (does NOT restart clock)
     const editBtn = div.querySelector('[data-edit]');
@@ -934,7 +905,6 @@ async function exportCsv() {
   'domains',
   'relevance',
   'move',
-  'purpose',
   'media',
   'origin',
   'notes'
@@ -964,7 +934,6 @@ async function exportCsv() {
         domains,
         (ev.relevance ?? []).join('+'),
         (ev.move ?? []).join('+'),
-        (ev.purpose ?? []).join('+'),
         (ev.media ?? []).join('+'),
         (ev.origin ?? []).join('+'),
         ev.notes ?? ''
