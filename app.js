@@ -417,31 +417,36 @@ async function renderPeopleSubgroup(groupKey, containerId) {
 
   let itemsToRender = [];
 
-  if (groupKey === 'Scientist') {
-    const group = domain.groups.find((g) => g.label === 'Scientist');
-    if (group) {
-      itemsToRender = group.items.map((item) => ({
-        groupLabel: 'Scientist',
-        item
-      }));
+  if (groupKey === '(People) Others') {
+    const scientistGroup = domain.groups.find((g) => g.label === 'Scientist');
+    if (scientistGroup) {
+      for (const item of scientistGroup.items) {
+        itemsToRender.push({
+          groupLabel: '(People) Others',
+          item
+        });
+      }
     }
+
+    itemsToRender.push({
+      groupLabel: '(People) Others',
+      item: 'Teacher experience'
+    });
+
+    itemsToRender.push({
+      groupLabel: '(People) Others',
+      item: 'Any other people'
+    });
   }
 
-  if (groupKey === 'Student(s)') {
+  if (groupKey === '(People) Students') {
     const group = domain.groups.find((g) => g.label === 'Student(s)');
     if (group) {
       itemsToRender = group.items.map((item) => ({
-        groupLabel: 'Student(s)',
+        groupLabel: '(People) Students',
         item
       }));
     }
-  }
-
-  if (groupKey === 'Other People') {
-    itemsToRender = [
-      { groupLabel: 'Other People', item: 'Teacher experience' },
-      { groupLabel: 'Other People', item: 'Any other people' }
-    ];
   }
 
   const chipsWrap = document.createElement('div');
@@ -453,10 +458,10 @@ async function renderPeopleSubgroup(groupKey, containerId) {
 
     const btn = document.createElement('button');
     btn.className = 'chip';
-
-    if (groupKey === 'Scientist') btn.classList.add('domain-scientist');
-    if (groupKey === 'Student(s)') btn.classList.add('domain-students');
-    if (groupKey === 'Other People') btn.classList.add('domain-other-people');
+ 
+    if (groupKey === '(People) Students') btn.classList.add('domain-students');
+    if (groupKey === '(People) Others') btn.classList.add('domain-scientist');
+    
     btn.textContent = `${entry.item} (${count})`;
 
     btn.addEventListener('click', async () => {
@@ -522,15 +527,15 @@ async function renderCultureSubgroup(groupLabel, containerId) {
 }
 
 async function renderAllDomains() {
-  await renderPeopleSubgroup('Scientist', 'domain_people_scientist');
-  await renderPeopleSubgroup('Student(s)', 'domain_people_students');
-  await renderPeopleSubgroup('Other People', 'domain_people_others');
-
+  await renderDomain('science_practices', 'domain_science_practices');
   await renderDomain('data', 'domain_data');
+
+  await renderPeopleSubgroup('(People) Others', 'domain_people_adults');
+  await renderPeopleSubgroup('(People) Students', 'domain_people_students');
+  
   await renderDomain('place_time', 'domain_place_time');
   await renderCultureSubgroup('Language', 'domain_culture_language');
   await renderCultureSubgroup('Culture', 'domain_culture_culture');
-  await renderDomain('science_practices', 'domain_science_practices');
   await renderDomain('society', 'domain_society');
   await renderDomain('other_academic', 'domain_other_academic');
 }
