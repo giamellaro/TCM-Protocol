@@ -230,14 +230,6 @@ const MOVES = [
   { key: 'RP', label: 'Role Play' }
 ];
 
-const PURPOSE = [
-  { key: 'H', label: 'Humanizing' },
-  { key: 'R', label: 'Relevance' },
-  { key: 'E', label: 'Elaboration' },
-  { key: 'T', label: 'Transfer' },
-  { key: 'U', label: 'Unsure' }
-];
-
 const MEDIA = [
   { key: 'P', label: 'Picture' },
   { key: 'V', label: 'Video' },
@@ -263,7 +255,6 @@ const editorEl = document.getElementById('editor');
 
 const relevanceChipsEl = document.getElementById('relevanceChips');
 const moveChipsEl = document.getElementById('moveChips');
-const purposeChipsEl = document.getElementById('purposeChips');
 const mediaChipsEl = document.getElementById('mediaChips');
 
 const noteInputEl = document.getElementById('noteInput');
@@ -587,14 +578,6 @@ async function renderAllRightColumn() {
     options: MOVES,
     familyClass: 'move',
     groupLabel: 'Instructional Move'
-  });
-
-  await renderFamilyChips({
-    containerId: 'purposeChips',
-    family: 'purpose',
-    options: PURPOSE,
-    familyClass: 'purpose',
-    groupLabel: 'Perceived Purpose'
   });
 
   await renderFamilyChips({
