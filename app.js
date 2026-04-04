@@ -216,9 +216,7 @@ const DOMAINS = [
 const RELEVANCE = [
   { key: 'D', label: 'Direct' },
   { key: 'A', label: 'Associated' },
-  { key: 'H', label: 'Hypothetic' },
   { key: 'U', label: 'Unrelated' },
-  { key: 'O', label: 'Other' }
 ];
 
 const MOVES = [
