@@ -235,66 +235,40 @@ body{
 /* ---------------- Editor ---------------- */
 .editor{ border-top:1px solid var(--line); padding:12px; }
 
-/* Inside the LEFT panel: make left editor column wider than the middle one */
-.editor-grid{
+/* ---------------- V2 Layout ---------------- */
+.v2-layout{
   display:grid;
-  grid-template-columns: minmax(340px, 1.35fr) minmax(260px, 0.65fr);
+  grid-template-columns: 3fr 1fr;
   gap:12px;
   align-items:start;
 }
 
-/* Explicit layout for editor blocks */
-#moveBlock{
-  grid-column: 1;
-  grid-row: 1;
+.v2-left{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
 }
 
-#purposeBlock{
-  grid-column: 2;
-  grid-row: 1;
+.v2-right{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
 }
 
-#domainsBlock{
-  grid-column: 1;
-  grid-row: 2;
+.domain-block{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:10px;
 }
 
-#mediaBlock{
-  grid-column: 2;
-  grid-row: 2;
+.domain-block h3{
+  margin:0 0 8px;
+  font-size:13px;
+  color:var(--muted);
+  font-weight:900;
+  letter-spacing:0.2px;
 }
-
-#originBlock{
-  grid-column: 1;
-  grid-row: 3;
-}
-
-#relevanceBlock{
-  grid-column: 2;
-  grid-row: 3;
-}
-
-#notesBlock{
-  grid-column: 1;
-  grid-row: 4;
-}
-
-/* When domain picker is open, stack vertically */
-.editor-grid.picker-open{
-  grid-template-columns: 1fr;
-}
-/* When picker is open, ignore fixed grid placement */
-.editor-grid.picker-open #moveBlock,
-.editor-grid.picker-open #purposeBlock,
-.editor-grid.picker-open #domainsBlock,
-.editor-grid.picker-open #mediaBlock,
-.editor-grid.picker-open #originBlock,
-.editor-grid.picker-open #relevanceBlock,
-.editor-grid.picker-open #notesBlock{
-  grid-column: auto !important;
-  grid-row: auto !important;
-}
-/* ✅ When domain picker is open, stack blocks vertically (no dead space) */
 
 .editor-block{
   background:var(--card);
@@ -331,7 +305,7 @@ body{
 .chip:active{ transform: translateY(1px); }
 
 /* Default ON styling (chips without a family class) */
-.chip.on:not(.relevance):not(.move):not(.purpose):not(.origin):not(.domain-btn){
+.chip.on:not(.relevance):not(.move):not(.domain-btn){
   background:var(--accent);
   border-color:var(--accent);
   color:#fff;
@@ -344,14 +318,8 @@ body{
 .chip.move{ border-color:#7a4fd3; }
 .chip.move.on{ background:#7a4fd3; border-color:#7a4fd3; color:#fff; }
 
-.chip.purpose{ border-color:#2fa86a; }
-.chip.purpose.on{ background:#2fa86a; border-color:#2fa86a; color:#fff; }
-
 .chip.media{ border-color:#d73a49; }
 .chip.media.on{ background:#d73a49; border-color:#d73a49; color:#fff; }
-
-.chip.origin{ border-color:#d07a2f; }
-.chip.origin.on{ background:#d07a2f; border-color:#d07a2f; color:#fff; }
 
 /* Domain buttons: strong tinted fill (uses --dc set inline by JS) */
 .chip.domain-btn{
@@ -373,46 +341,6 @@ body{
 /* Press feedback without wiping tint */
 .chip.domain-btn:active{
   filter: brightness(1.08);
-}
-
-/* ---------------- Domain picker ---------------- */
-.picker{
-  margin-top:10px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-
-  /* keep it from blowing out the page on iPad */
-  max-height:55vh;
-  overflow:auto;
-  padding-right:2px;
-}
-
-.picker .group{ border-top:1px dashed #303038; padding-top:10px; }
-.picker .group:first-child{ border-top:none; padding-top:0; }
-.picker .gtitle{
-  font-weight:900;
-  font-size:12px;
-  color:var(--muted);
-  margin-bottom:8px;
-}
-
-/* Tint the domain picker panel when active */
-#domainPicker.tinted{
-  border-left:10px solid var(--dc);
-  border-radius:12px;
-  padding:10px;
-  background: color-mix(in srgb, var(--dc) 6%, #16161a);
-  border-top:1px solid rgba(255,255,255,0.08);
-  border-right:1px solid rgba(255,255,255,0.08);
-  border-bottom:1px solid rgba(255,255,255,0.08);
-}
-
-@supports not (background: color-mix(in srgb, red 10%, black)) {
-  #domainPicker.tinted{
-    background:#16161a;
-    border-color: var(--dc);
-  }
 }
 
 /* ---------------- Notes ---------------- */
