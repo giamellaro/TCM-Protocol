@@ -299,7 +299,7 @@ body{
 .chips{
   display:flex;
   flex-wrap:wrap;
-  gap:10px;                     /* touch spacing */
+  gap:8px;                     /* touch spacing */
 }
 
 /* ---------------- Chips ---------------- */
@@ -321,6 +321,12 @@ body{
   background:var(--accent);
   border-color:var(--accent);
   color:#fff;
+}
+/* Smaller chips for left column only */
+.v2-left .chip{
+  font-size:13px;
+  padding:10px 12px;
+  font-weight:800;
 }
 
 /* Semantic chip families */
@@ -610,8 +616,8 @@ textarea{
 }
 
 .domain-block h3{
-  margin:0 0 8px;
-  font-size:14px;
+  margin:0 0 6px;
+  font-size:12px;
   font-weight:900;
 }
 
