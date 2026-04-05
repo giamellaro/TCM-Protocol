@@ -93,13 +93,11 @@ body{
 }
 
 .panel-head{
-  padding:12px;
+  padding:8px 12px;
   border-bottom:1px solid var(--line);
   display:flex;
   justify-content:space-between;
-  align-items:flex-end;
-  gap:12px;
-  flex-wrap:wrap;
+  align-items:center;
 }
 
 .panel h2{ margin:0; font-size:16px; }
@@ -231,7 +229,7 @@ body{
 }
 
 /* ---------------- Editor ---------------- */
-.editor{ border-top:1px solid var(--line); padding:12px; }
+.editor{ border-top:1px solid var(--line); padding:8px 12px; }
 
 /* Inside the LEFT panel: make left editor column wider than the middle one */
 .editor-grid{
