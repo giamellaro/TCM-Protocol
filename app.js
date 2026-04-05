@@ -138,8 +138,8 @@ const DOMAINS = [
           'Research questions',
           'Models (not data models)',
           'Investigations or methods',
-          'Explanations & Arguments',
-          'Surfacing assumptions',
+          'Explanations & Arguments (CER)',
+          'Background Info/Assumptions',
           'Specific scientific phenomenon',
           'Consensus model(s) or ideas'
         ]
@@ -154,14 +154,14 @@ const DOMAINS = [
       {
         label: '',
         items: [
-          'Data',
-          'Data collection',
-          'Data analysis',
+          'Specific Data',
+          'Collecting data',
+          'Analyzing data',
           'Graphs/tables/other data models',
           'Local data',
           'Limitations of data',
-          'Data points as phenomena in real contexts',
-          'Bias and variable interpretation',
+          'Data as phenomena in real contexts',
+          'Bias & variable interpretation',
           'Sources of error'
         ]
       }
