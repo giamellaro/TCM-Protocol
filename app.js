@@ -1,5 +1,5 @@
 // app.js
-import { getMeta, setMeta, addObservation as addObservationDB, listObservationsByLesson } from './db.js';
+import { getMeta, setMeta, addObservation as addObservationDB, listObservationsByLesson, deleteObservation } from './db.js';
 
 
 const nowIso = () => new Date().toISOString();
@@ -250,9 +250,12 @@ const btnInstall = document.getElementById('btnInstall');
 const lessonIdInput = document.getElementById('lessonIdInput');
 const btnExportCsv = document.getElementById('btnExportCsv');
 const btnExportJson = document.getElementById('btnExportJson');
+const btnRecent = document.getElementById('btnRecent');
 const btnViewNotes = document.getElementById('btnViewNotes');
 const btnCloseNotesPanel = document.getElementById('btnCloseNotesPanel');
+const btnCloseRecentPanel = document.getElementById('btnCloseRecentPanel');
 const notesListEl = document.getElementById('notesList');
+const recentListEl = document.getElementById('recentList');
 
 const editorEl = document.getElementById('editor');
 
@@ -263,6 +266,7 @@ const mediaChipsEl = document.getElementById('mediaChips');
 const noteInputEl = document.getElementById('noteInput');
 const btnAddNote = document.getElementById('btnAddNote');
 const notesPanelEl = document.getElementById('notesPanel');
+const recentPanelEl = document.getElementById('recentPanel');
 
 // --------------------- STATE ---------------------
 let lesson = null; // { id, userLessonId, startedAt }
@@ -634,6 +638,82 @@ async function renderNotesPanel() {
     notesListEl.appendChild(item);
   }
 }
+
+async function renderRecentPanel() {
+  if (!recentListEl) return;
+
+  recentListEl.innerHTML = '';
+
+  if (!lesson) {
+    recentListEl.innerHTML = `<div class="muted">No active lesson.</div>`;
+    return;
+  }
+
+  const observations = await listObservationsByLesson(lesson.id);
+  const recent = observations
+    .slice()
+    .sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime())
+    .slice(0, 8);
+
+  if (recent.length === 0) {
+    recentListEl.innerHTML = `<div class="muted">No codes logged yet.</div>`;
+    return;
+  }
+
+  for (const obs of recent) {
+    const item = document.createElement('div');
+    item.className = 'note-item';
+
+    const time = document.createElement('div');
+    time.className = 'note-time';
+    time.textContent = `t+${obs.relSec ?? ''}s • ${new Date(obs.ts).toLocaleTimeString()}`;
+
+    const text = document.createElement('div');
+    text.className = 'note-text';
+
+    if (obs.family === 'note') {
+      text.textContent = `Note: ${obs.text ?? ''}`;
+    } else {
+      text.textContent = `${obs.group}: ${obs.label}`;
+    }
+
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.style.marginTop = '8px';
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'btn end-btn';
+    delBtn.type = 'button';
+    delBtn.textContent = 'Delete';
+
+    delBtn.addEventListener('click', async () => {
+      const ok = confirm('Delete this code?');
+      if (!ok) return;
+
+      await deleteObservation(obs.id);
+      await renderRecentPanel();
+      await refresh();
+    });
+
+    row.appendChild(delBtn);
+
+    item.appendChild(time);
+    item.appendChild(text);
+    item.appendChild(row);
+
+    recentListEl.appendChild(item);
+  }
+}
+
+async function openRecentPanel() {
+  await renderRecentPanel();
+  if (recentPanelEl) recentPanelEl.classList.remove('hidden');
+}
+
+function closeRecentPanel() {
+  if (recentPanelEl) recentPanelEl.classList.add('hidden');
+}
+
 // --------------------- EXPORT ---------------------
 
 function toCsvValue(v) {
@@ -757,12 +837,20 @@ if (btnEndLesson) btnEndLesson.addEventListener('click', endLesson);
 if (btnExportCsv) btnExportCsv.addEventListener('click', exportCsv);
 if (btnExportJson) btnExportJson.addEventListener('click', exportJson);
 if (btnAddNote) btnAddNote.addEventListener('click', addNote);
+if (btnRecent) btnRecent.addEventListener('click', openRecentPanel);
 if (btnViewNotes) btnViewNotes.addEventListener('click', openNotesPanel);
 if (btnCloseNotesPanel) btnCloseNotesPanel.addEventListener('click', closeNotesPanel);
+if (btnCloseRecentPanel) btnCloseRecentPanel.addEventListener('click', closeRecentPanel);
 
 if (notesPanelEl) {
   notesPanelEl.addEventListener('click', (e) => {
     if (e.target === notesPanelEl) closeNotesPanel();
+  });
+}
+
+if (recentPanelEl) {
+  recentPanelEl.addEventListener('click', (e) => {
+    if (e.target === recentPanelEl) closeRecentPanel();
   });
 }
 
