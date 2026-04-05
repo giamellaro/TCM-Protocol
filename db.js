@@ -75,3 +75,15 @@ export async function listObservationsByLesson(lessonId) {
     req.onerror = () => reject(req.error);
   });
 }
+
+export async function deleteObservation(id) {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('observations', 'readwrite');
+    const store = tx.objectStore('observations');
+    const req = store.delete(id);
+
+    req.onsuccess = () => resolve(true);
+    req.onerror = () => reject(req.error);
+  });
+}
