@@ -339,10 +339,11 @@ async function endLesson() {
   const confirmEnd = confirm('End this lesson?');
   if (!confirmEnd) return;
 
-  const doExport = confirm('Would you like to export CSV before ending the lesson?');
-  if (doExport) {
-    await exportCsv();
-  }
+ const doExport = confirm('Export data (CSV & JSON) before ending lesson?');
+if (doExport) {
+  await exportCsv();
+  await exportJson();
+}
 
   lesson = null;
   await setMeta('lesson', null);
