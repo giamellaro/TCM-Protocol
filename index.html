@@ -30,11 +30,10 @@
 <button id="btnStartLesson" class="btn">Start lesson</button>
 <button id="btnEndLesson" class="btn end-btn">End lesson</button>
 <button id="btnInstall" class="btn hidden" type="button">Install</button>
+<button id="btnRecent" class="btn" type="button">Recent</button>
 <button id="btnViewNotes" class="btn" type="button">View Notes</button>
 <button id="btnExportCsv" class="btn">Export CSV</button>
 <button id="btnExportJson" class="btn">Export JSON</button>
-</div>
-  </header>
 
 <main class="layout">
   <section class="panel">
@@ -140,6 +139,17 @@
     <div id="notesList" class="notes-list"></div>
   </div>
 </div>
+
+  <div id="recentPanel" class="notes-panel hidden">
+  <div class="notes-panel-card">
+    <div class="notes-panel-head">
+      <h2>Recent Codes</h2>
+      <button id="btnCloseRecentPanel" class="btn done-btn" type="button">Done</button>
+    </div>
+    <div id="recentList" class="notes-list"></div>
+  </div>
+</div>
+  
 </main>
 
   <footer class="footer muted">
