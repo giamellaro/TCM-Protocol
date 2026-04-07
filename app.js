@@ -244,7 +244,7 @@ const MEDIA = [
 
 // --------------------- UI REFERENCES ---------------------
 const lessonMeta = document.getElementById('lessonMeta');
-const btnStartLesson = document.getElementById('btnStartLesson');
+const btn = document.getElementById('btn');
 const btnEndLesson = document.getElementById('btnEndLesson');
 const btnInstall = document.getElementById('btnInstall');
 const lessonIdInput = document.getElementById('lessonIdInput');
@@ -318,6 +318,19 @@ async function loadLesson() {
 }
 
 async function startLesson() {
+  if (lesson) {
+    const confirmReplace = confirm(
+      'Starting a new lesson will replace the current lesson in the app. Export current data first if you want to keep it. Continue?'
+    );
+    if (!confirmReplace) return;
+
+    const doExport = confirm('Would you like to export CSV and JSON before starting the new lesson?');
+    if (doExport) {
+      await exportCsv();
+      await exportJson();
+    }
+  }
+
   const userLessonId = (lessonIdInput?.value ?? '').trim();
 
   lesson = {
