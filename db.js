@@ -75,6 +75,23 @@ export async function listObservationsByLesson(lessonId) {
     req.onerror = () => reject(req.error);
   });
 }
+export async function listAllObservations() {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('observations', 'readonly');
+    const store = tx.objectStore('observations');
+    const req = store.getAll();
+
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function getLessonIds() {
+  const observations = await listAllObservations();
+  const ids = [...new Set(observations.map((obs) => obs.lessonId).filter(Boolean))];
+  return ids;
+}
 
 export async function deleteObservation(id) {
   const db = await openDb();
