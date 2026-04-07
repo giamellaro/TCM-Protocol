@@ -267,6 +267,9 @@ const noteInputEl = document.getElementById('noteInput');
 const btnAddNote = document.getElementById('btnAddNote');
 const notesPanelEl = document.getElementById('notesPanel');
 const recentPanelEl = document.getElementById('recentPanel');
+const btnPastLessons = document.getElementById('btnPastLessons');
+const btnClosePastLessonsPanel = document.getElementById('btnClosePastLessonsPanel');
+const pastLessonsListEl = document.getElementById('pastLessonsList');
 const pastLessonsPanelEl = document.getElementById('pastLessonsPanel');
 
 // --------------------- STATE ---------------------
