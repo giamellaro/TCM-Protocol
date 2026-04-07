@@ -267,6 +267,7 @@ const noteInputEl = document.getElementById('noteInput');
 const btnAddNote = document.getElementById('btnAddNote');
 const notesPanelEl = document.getElementById('notesPanel');
 const recentPanelEl = document.getElementById('recentPanel');
+const pastLessonsPanelEl = document.getElementById('pastLessonsPanel');
 
 // --------------------- STATE ---------------------
 let lesson = null; // { id, userLessonId, startedAt }
