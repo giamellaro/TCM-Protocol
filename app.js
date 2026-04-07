@@ -719,6 +719,73 @@ async function renderRecentPanel() {
   }
 }
 
+async function renderPastLessonsPanel() {
+  if (!pastLessonsListEl) return;
+
+  pastLessonsListEl.innerHTML = '';
+
+  const lessonIds = await getLessonIds();
+
+  if (!lessonIds.length) {
+    pastLessonsListEl.innerHTML = `<div class="muted">No stored lessons found.</div>`;
+    return;
+  }
+
+  const allObservations = await listAllObservations();
+
+  for (const lessonId of lessonIds) {
+    const lessonObs = allObservations
+      .filter((obs) => obs.lessonId === lessonId)
+      .sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
+
+    const item = document.createElement('div');
+    item.className = 'note-item';
+
+    const time = document.createElement('div');
+    time.className = 'note-time';
+
+    const firstTs = lessonObs[0]?.ts ? new Date(lessonObs[0].ts).toLocaleString() : 'Unknown time';
+    time.textContent = `${lessonId} • ${lessonObs.length} observations • ${firstTs}`;
+
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.style.marginTop = '8px';
+
+    const csvBtn = document.createElement('button');
+    csvBtn.className = 'btn';
+    csvBtn.type = 'button';
+    csvBtn.textContent = 'Download CSV';
+    csvBtn.addEventListener('click', async () => {
+      await downloadLessonCsvById(lessonId);
+    });
+
+    const jsonBtn = document.createElement('button');
+    jsonBtn.className = 'btn';
+    jsonBtn.type = 'button';
+    jsonBtn.textContent = 'Download JSON';
+    jsonBtn.addEventListener('click', async () => {
+      await downloadLessonJsonById(lessonId);
+    });
+
+    row.appendChild(csvBtn);
+    row.appendChild(jsonBtn);
+
+    item.appendChild(time);
+    item.appendChild(row);
+
+    pastLessonsListEl.appendChild(item);
+  }
+}
+
+async function openPastLessonsPanel() {
+  await renderPastLessonsPanel();
+  if (pastLessonsPanelEl) pastLessonsPanelEl.classList.remove('hidden');
+}
+
+function closePastLessonsPanel() {
+  if (pastLessonsPanelEl) pastLessonsPanelEl.classList.add('hidden');
+}
+
 async function openRecentPanel() {
   await renderRecentPanel();
   if (recentPanelEl) recentPanelEl.classList.remove('hidden');
@@ -827,6 +894,83 @@ async function exportCsv() {
   downloadText(`tcm_observations_${safeLessonId}.csv`, rows.join('\n'), 'text/csv');
 }
 
+async function downloadLessonCsvById(lessonId) {
+  const observations = await listObservationsByLesson(lessonId);
+
+  if (!observations.length) return;
+
+  const safeLessonId = String(lessonId)
+    .replace(/[^\w-]+/g, '_')
+    .slice(0, 60);
+
+  const header = [
+    'lessonId',
+    'observationId',
+    'ts',
+    'relSec',
+    'family',
+    'group',
+    'code',
+    'label',
+    'text'
+  ];
+
+  const rows = [header.join(',')];
+
+  const sorted = observations.slice().sort((a, b) => {
+    const ta = new Date(a.ts).getTime();
+    const tb = new Date(b.ts).getTime();
+    return ta - tb;
+  });
+
+  for (const obs of sorted) {
+    rows.push(
+      [
+        obs.lessonId ?? '',
+        obs.id ?? '',
+        obs.ts ?? '',
+        obs.relSec ?? '',
+        obs.family ?? '',
+        obs.group ?? '',
+        obs.code ?? '',
+        obs.label ?? '',
+        obs.text ?? ''
+      ]
+        .map(toCsvValue)
+        .join(',')
+    );
+  }
+
+  downloadText(`tcm_observations_${safeLessonId}.csv`, rows.join('\n'), 'text/csv');
+}
+
+async function downloadLessonJsonById(lessonId) {
+  const observations = await listObservationsByLesson(lessonId);
+
+  if (!observations.length) return;
+
+  const safeLessonId = String(lessonId)
+    .replace(/[^\w-]+/g, '_')
+    .slice(0, 60);
+
+  const payload = {
+    lesson: {
+      id: lessonId
+    },
+    exportedAt: nowIso(),
+    observations: observations.slice().sort((a, b) => {
+      const ta = new Date(a.ts).getTime();
+      const tb = new Date(b.ts).getTime();
+      return ta - tb;
+    })
+  };
+
+  downloadText(
+    `tcm_observations_${safeLessonId}.json`,
+    JSON.stringify(payload, null, 2),
+    'application/json'
+  );
+}
 // --------------------- INSTALL (PWA) ---------------------
 let deferredInstallPrompt = null;
 
@@ -852,9 +996,11 @@ if (btnExportCsv) btnExportCsv.addEventListener('click', exportCsv);
 if (btnExportJson) btnExportJson.addEventListener('click', exportJson);
 if (btnAddNote) btnAddNote.addEventListener('click', addNote);
 if (btnRecent) btnRecent.addEventListener('click', openRecentPanel);
+if (btnPastLessons) btnPastLessons.addEventListener('click', openPastLessonsPanel);
 if (btnViewNotes) btnViewNotes.addEventListener('click', openNotesPanel);
 if (btnCloseNotesPanel) btnCloseNotesPanel.addEventListener('click', closeNotesPanel);
 if (btnCloseRecentPanel) btnCloseRecentPanel.addEventListener('click', closeRecentPanel);
+if (btnClosePastLessonsPanel) btnClosePastLessonsPanel.addEventListener('click', closePastLessonsPanel);
 
 if (notesPanelEl) {
   notesPanelEl.addEventListener('click', (e) => {
@@ -865,6 +1011,12 @@ if (notesPanelEl) {
 if (recentPanelEl) {
   recentPanelEl.addEventListener('click', (e) => {
     if (e.target === recentPanelEl) closeRecentPanel();
+  });
+}
+
+if (pastLessonsPanelEl) {
+  pastLessonsPanelEl.addEventListener('click', (e) => {
+    if (e.target === pastLessonsPanelEl) closePastLessonsPanel();
   });
 }
 
