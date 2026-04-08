@@ -1,5 +1,5 @@
 // app.js
-import { getMeta, setMeta, addObservation as addObservationDB, listObservationsByLesson, deleteObservation } from './db.js';
+import { getMeta, setMeta, addObservation as addObservationDB, listObservationsByLesson, listAllObservations, getLessonIds, deleteObservation } from './db.js';
 
 
 const nowIso = () => new Date().toISOString();
