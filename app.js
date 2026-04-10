@@ -158,7 +158,7 @@ const DOMAINS = [
           'Graphs/tables/other data models',
           'Local data',
           'Limitations of data',
-          'Data as phenomena in real contexts',
+          'Data as phenomena in real contexts'
         ]
       }
     ]
