@@ -135,8 +135,7 @@ const DOMAINS = [
       {
         label: '',
         items: [
-          'Research questions',
-          'Models (not data models)',
+          'Research Questions/Hypotheses',
           'Investigations or methods',
           'Explanations & Arguments (CER)',
           'Background Info/Assumptions',
@@ -154,15 +153,12 @@ const DOMAINS = [
       {
         label: '',
         items: [
-          'Specific Data',
           'Collecting data',
           'Analyzing data',
           'Graphs/tables/other data models',
           'Local data',
           'Limitations of data',
           'Data as phenomena in real contexts',
-          'Bias & variable interpretation',
-          'Sources of error'
         ]
       }
     ]
@@ -177,7 +173,7 @@ const DOMAINS = [
       items: [
         'Specific place',
         'Multiple places/environments',
-        'Maps',
+        'General Organisms'
         'Specific organisms',
         'Geographical relationship',
         'Abiotic characteristics',
@@ -225,8 +221,6 @@ const RELEVANCE = [
 ];
 
 const MOVES = [
-  { key: 'R', label: 'Simple Reference' },
-  { key: 'E', label: 'Explanation' },
   { key: 'S', label: 'Story' },
   { key: 'A', label: 'Analogy' },
   { key: 'V', label: 'Visualization' },
