@@ -173,7 +173,7 @@ const DOMAINS = [
       items: [
         'Specific place',
         'Multiple places/environments',
-        'General Organisms'
+        'General Organisms',
         'Specific organisms',
         'Geographical relationship',
         'Abiotic characteristics',
