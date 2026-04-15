@@ -389,13 +389,13 @@ body{
 }
 
 .chip.domain-language{
-  border-color:#ff8c00;
-  background: color-mix(in srgb, #ff8c00 16%, var(--chipBg));
+  border-color:#6a0dad;
+  background: color-mix(in srgb, #6a0dad 16%, var(--chipBg));
 }
 .chip.domain-language.on{
-  background:#ff8c00;
-  border-color:#ff8c00;
-  color:#000;
+  background:#6a0dad;
+  border-color:#6a0dad;
+  color:#fff;
 }
 
 .chip.domain-culture{
