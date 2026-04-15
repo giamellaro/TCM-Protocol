@@ -338,113 +338,102 @@ body{
 .chip.media.on{ background:#d73a49; border-color:#d73a49; color:#fff; }
 
 /* Left-column domain chip families */
-.chip.domain-scientist{
-  border-color:#c89b1d;
-  background: color-mix(in srgb, #c89b1d 16%, var(--chipBg));
-}
-.chip.domain-scientist.on{
-  background:#c89b1d;
-  border-color:#c89b1d;
-  color:#000;
-}
-
-.chip.domain-students{
-  border-color:#d9b44a;
-  background: color-mix(in srgb, #d9b44a 16%, var(--chipBg));
-}
-.chip.domain-students.on{
-  background:#d9b44a;
-  border-color:#d9b44a;
-  color:#000;
-}
-
-.chip.domain-other-people{
-  border-color:#8b6b16;
-  background: color-mix(in srgb, #8b6b16 16%, var(--chipBg));
-}
-.chip.domain-other-people.on{
-  background:#8b6b16;
-  border-color:#8b6b16;
-  color:#fff;
-}
-
 .chip.domain-science-practices{
-  border-color:#0f766e;
-  background: color-mix(in srgb, #0f766e 16%, var(--chipBg));
+  border-color:#008000;
+  background: color-mix(in srgb, #008000 16%, var(--chipBg));
 }
 .chip.domain-science-practices.on{
-  background:#0f766e;
-  border-color:#0f766e;
+  background:#008000;
+  border-color:#008000;
   color:#fff;
 }
 
 .chip.domain-data{
-  border-color:#64748b;
-  background: color-mix(in srgb, #64748b 16%, var(--chipBg));
+  border-color:#0000ff;
+  background: color-mix(in srgb, #0000ff 16%, var(--chipBg));
 }
 .chip.domain-data.on{
-  background:#64748b;
-  border-color:#64748b;
+  background:#0000ff;
+  border-color:#0000ff;
+  color:#fff;
+}
+
+.chip.domain-students{
+  border-color:#ffd700;
+  background: color-mix(in srgb, #ffd700 16%, var(--chipBg));
+}
+.chip.domain-students.on{
+  background:#ffd700;
+  border-color:#ffd700;
+  color:#000;
+}
+
+.chip.domain-scientist{
+  border-color:#b8860b;
+  background: color-mix(in srgb, #b8860b 16%, var(--chipBg));
+}
+.chip.domain-scientist.on{
+  background:#b8860b;
+  border-color:#b8860b;
   color:#fff;
 }
 
 .chip.domain-place-time{
-  border-color:#0891b2;
-  background: color-mix(in srgb, #0891b2 16%, var(--chipBg));
+  border-color:#00bcd4;
+  background: color-mix(in srgb, #00bcd4 16%, var(--chipBg));
 }
 .chip.domain-place-time.on{
-  background:#0891b2;
-  border-color:#0891b2;
-  color:#fff;
+  background:#00bcd4;
+  border-color:#00bcd4;
+  color:#000;
 }
 
 .chip.domain-language{
-  border-color:#d97706;
-  background: color-mix(in srgb, #d97706 16%, var(--chipBg));
+  border-color:#ff8c00;
+  background: color-mix(in srgb, #ff8c00 16%, var(--chipBg));
 }
 .chip.domain-language.on{
-  background:#d97706;
-  border-color:#d97706;
-  color:#fff;
+  background:#ff8c00;
+  border-color:#ff8c00;
+  color:#000;
 }
 
 .chip.domain-culture{
-  border-color:#7c6f14;
-  background: color-mix(in srgb, #7c6f14 16%, var(--chipBg));
+  border-color:#8b4513;
+  background: color-mix(in srgb, #8b4513 16%, var(--chipBg));
 }
 .chip.domain-culture.on{
-  background:#7c6f14;
-  border-color:#7c6f14;
+  background:#8b4513;
+  border-color:#8b4513;
   color:#fff;
 }
 
 .chip.domain-society{
-  border-color:#a21caf;
-  background: color-mix(in srgb, #a21caf 16%, var(--chipBg));
+  border-color:#ff0000;
+  background: color-mix(in srgb, #ff0000 16%, var(--chipBg));
 }
 .chip.domain-society.on{
-  background:#a21caf;
-  border-color:#a21caf;
+  background:#ff0000;
+  border-color:#ff0000;
   color:#fff;
 }
 
 .chip.domain-other-academic{
-  border-color:#475569;
-  background: color-mix(in srgb, #475569 16%, var(--chipBg));
+  border-color:#808080;
+  background: color-mix(in srgb, #808080 16%, var(--chipBg));
 }
 .chip.domain-other-academic.on{
-  background:#475569;
-  border-color:#475569;
+  background:#808080;
+  border-color:#808080;
   color:#fff;
 }
 
 /* fallback if color-mix is unsupported */
 @supports not (background: color-mix(in srgb, red 10%, black)) {
-  .chip.domain-scientist,
-  .chip.domain-students,
-  .chip.domain-other-people,
   .chip.domain-science-practices,
   .chip.domain-data,
+  .chip.domain-students,
+  .chip.domain-scientist,
   .chip.domain-place-time,
   .chip.domain-language,
   .chip.domain-culture,
